@@ -214,6 +214,16 @@ export function FormBuilder() {
               ))}
             </div>
 
+            <div className="mt-10 flex justify-start">
+              <button
+                type="button"
+                className="px-6 py-2 rounded-md bg-primary text-primary-foreground text-sm font-semibold"
+                aria-label="Submit form"
+              >
+                Submit
+              </button>
+            </div>
+
             {/* Empty state click area */}
             <div
               className="min-h-[200px] cursor-text"
