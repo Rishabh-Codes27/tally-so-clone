@@ -1,10 +1,62 @@
-# v0 runtime files (should only exist in preview, not in git)
-__v0_runtime_loader.js
-__v0_devtools.tsx
-__v0_jsx-dev-runtime.ts
-
-# Common ignores
-node_modules/
-.next/
-.env*.local
+# ======================
+# OS junk
+# ======================
 .DS_Store
+Thumbs.db
+
+# ======================
+# Environment variables (NEVER COMMIT)
+# ======================
+.env
+.env.local
+.env.*
+!.env.example
+
+# ======================
+# Logs
+# ======================
+*.log
+
+# ======================
+# Node / Next.js (frontend)
+# ======================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/build/
+
+# Vercel
+frontend/.vercel
+
+# ======================
+# Python (backend)
+# ======================
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+
+# Python virtual environments
+backend/venv/
+backend/.venv/
+
+# SQLite database files
+backend/*.db
+backend/*.sqlite3
+backend/*.db-journal
+
+# persistent volume folder (if used locally)
+backend/data/
+
+# ======================
+# IDE & Editor
+# ======================
+.vscode/
+.idea/
+
+# ======================
+# Misc
+# ======================
+*.tmp
+*.swp
