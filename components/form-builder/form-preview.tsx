@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import type { FormBlock } from "./types"
+import type { FormBlock } from "./types";
 
 interface FormPreviewProps {
-  formTitle: string
-  blocks: FormBlock[]
+  formTitle: string;
+  blocks: FormBlock[];
 }
 
 const fallbackLabels: Record<FormBlock["type"], string> = {
@@ -37,11 +37,11 @@ const fallbackLabels: Record<FormBlock["type"], string> = {
   image: "Image",
   "page-break": "",
   "new-page": "",
-}
+};
 
 function getLabel(block: FormBlock) {
-  const content = block.content?.trim()
-  return content || fallbackLabels[block.type]
+  const content = block.content?.trim();
+  return content || fallbackLabels[block.type];
 }
 
 export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
@@ -54,33 +54,45 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
       </div>
       <div className="flex flex-col gap-6">
         {blocks.map((block) => {
-          if (block.type === "text") return null
+          if (block.type === "text") return null;
 
           switch (block.type) {
             case "heading1":
               return (
-                <h2 key={block.id} className="text-3xl font-bold text-foreground">
+                <h2
+                  key={block.id}
+                  className="text-3xl font-bold text-foreground"
+                >
                   {getLabel(block)}
                 </h2>
-              )
+              );
             case "heading2":
               return (
-                <h3 key={block.id} className="text-2xl font-bold text-foreground">
+                <h3
+                  key={block.id}
+                  className="text-2xl font-bold text-foreground"
+                >
                   {getLabel(block)}
                 </h3>
-              )
+              );
             case "heading3":
               return (
-                <h4 key={block.id} className="text-xl font-semibold text-foreground">
+                <h4
+                  key={block.id}
+                  className="text-xl font-semibold text-foreground"
+                >
                   {getLabel(block)}
                 </h4>
-              )
+              );
             case "paragraph":
               return (
-                <p key={block.id} className="text-base text-foreground leading-relaxed">
+                <p
+                  key={block.id}
+                  className="text-base text-foreground leading-relaxed"
+                >
                   {getLabel(block)}
                 </p>
-              )
+              );
             case "short-answer":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -93,7 +105,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     className="border-b border-border py-2 text-sm text-foreground bg-transparent outline-none"
                   />
                 </div>
-              )
+              );
             case "long-answer":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -105,7 +117,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     className="border border-border rounded-md p-3 h-24 text-sm text-foreground bg-transparent outline-none"
                   />
                 </div>
-              )
+              );
             case "email":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -118,7 +130,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     className="border-b border-border py-2 text-sm text-foreground bg-transparent outline-none"
                   />
                 </div>
-              )
+              );
             case "number":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -131,7 +143,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     className="border-b border-border py-2 text-sm text-foreground bg-transparent outline-none"
                   />
                 </div>
-              )
+              );
             case "url":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -144,7 +156,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     className="border-b border-border py-2 text-sm text-foreground bg-transparent outline-none"
                   />
                 </div>
-              )
+              );
             case "phone":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -157,7 +169,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     className="border-b border-border py-2 text-sm text-foreground bg-transparent outline-none"
                   />
                 </div>
-              )
+              );
             case "date":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -169,7 +181,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
                   />
                 </div>
-              )
+              );
             case "time":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -185,11 +197,12 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                   />
                   {(block.timeStart || block.timeEnd) && (
                     <div className="text-xs text-muted-foreground">
-                      Working hours: {block.timeStart || "--:--"} to {block.timeEnd || "--:--"}
+                      Working hours: {block.timeStart || "--:--"} to{" "}
+                      {block.timeEnd || "--:--"}
                     </div>
                   )}
                 </div>
-              )
+              );
             case "multiple-choice":
               return (
                 <fieldset key={block.id} className="flex flex-col gap-2">
@@ -197,13 +210,20 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     {getLabel(block)}
                   </legend>
                   {(block.options || []).map((option, index) => (
-                    <label key={index} className="flex items-center gap-2 text-sm text-foreground">
-                      <input type="radio" name={`mc-${block.id}`} className="h-4 w-4" />
+                    <label
+                      key={index}
+                      className="flex items-center gap-2 text-sm text-foreground"
+                    >
+                      <input
+                        type="radio"
+                        name={`mc-${block.id}`}
+                        className="h-4 w-4"
+                      />
                       {option}
                     </label>
                   ))}
                 </fieldset>
-              )
+              );
             case "checkboxes":
               return (
                 <fieldset key={block.id} className="flex flex-col gap-2">
@@ -211,13 +231,16 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     {getLabel(block)}
                   </legend>
                   {(block.options || []).map((option, index) => (
-                    <label key={index} className="flex items-center gap-2 text-sm text-foreground">
+                    <label
+                      key={index}
+                      className="flex items-center gap-2 text-sm text-foreground"
+                    >
                       <input type="checkbox" className="h-4 w-4" />
                       {option}
                     </label>
                   ))}
                 </fieldset>
-              )
+              );
             case "dropdown":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -232,7 +255,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     ))}
                   </select>
                 </div>
-              )
+              );
             case "multi-select":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -250,7 +273,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     ))}
                   </select>
                 </div>
-              )
+              );
             case "linear-scale":
               return (
                 <fieldset key={block.id} className="flex flex-col gap-2">
@@ -259,14 +282,21 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                   </legend>
                   <div className="flex items-center gap-4">
                     {[1, 2, 3, 4, 5].map((n) => (
-                      <label key={n} className="flex items-center gap-2 text-sm text-foreground">
-                        <input type="radio" name={`scale-${block.id}`} className="h-4 w-4" />
+                      <label
+                        key={n}
+                        className="flex items-center gap-2 text-sm text-foreground"
+                      >
+                        <input
+                          type="radio"
+                          name={`scale-${block.id}`}
+                          className="h-4 w-4"
+                        />
                         {n}
                       </label>
                     ))}
                   </div>
                 </fieldset>
-              )
+              );
             case "matrix":
               return (
                 <fieldset key={block.id} className="flex flex-col gap-3">
@@ -279,7 +309,10 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                         <tr>
                           <th className="p-2" />
                           {(block.columns || []).map((col, ci) => (
-                            <th key={ci} className="p-2 text-center font-normal text-muted-foreground">
+                            <th
+                              key={ci}
+                              className="p-2 text-center font-normal text-muted-foreground"
+                            >
                               {col}
                             </th>
                           ))}
@@ -304,7 +337,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     </table>
                   </div>
                 </fieldset>
-              )
+              );
             case "rating":
               return (
                 <fieldset key={block.id} className="flex flex-col gap-2">
@@ -313,14 +346,21 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                   </legend>
                   <div className="flex items-center gap-3">
                     {[1, 2, 3, 4, 5].map((n) => (
-                      <label key={n} className="flex items-center gap-2 text-sm text-foreground">
-                        <input type="radio" name={`rating-${block.id}`} className="h-4 w-4" />
+                      <label
+                        key={n}
+                        className="flex items-center gap-2 text-sm text-foreground"
+                      >
+                        <input
+                          type="radio"
+                          name={`rating-${block.id}`}
+                          className="h-4 w-4"
+                        />
                         {n}
                       </label>
                     ))}
                   </div>
                 </fieldset>
-              )
+              );
             case "payment":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -333,7 +373,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
                   />
                 </div>
-              )
+              );
             case "signature":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -346,7 +386,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
                   />
                 </div>
-              )
+              );
             case "ranking":
               return (
                 <fieldset key={block.id} className="flex flex-col gap-3">
@@ -354,8 +394,13 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     {getLabel(block)}
                   </legend>
                   {(block.options || []).map((option, index) => (
-                    <label key={index} className="flex items-center gap-3 text-sm text-foreground">
-                      <span className="w-6 text-muted-foreground">{index + 1}.</span>
+                    <label
+                      key={index}
+                      className="flex items-center gap-3 text-sm text-foreground"
+                    >
+                      <span className="w-6 text-muted-foreground">
+                        {index + 1}.
+                      </span>
                       <span className="flex-1">{option}</span>
                       <select
                         className="border border-border rounded-md px-2 py-1 text-sm text-foreground bg-transparent outline-none"
@@ -370,7 +415,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     </label>
                   ))}
                 </fieldset>
-              )
+              );
             case "wallet-connect":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -381,7 +426,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     Connect wallet
                   </button>
                 </div>
-              )
+              );
             case "file-upload":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
@@ -390,18 +435,22 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                   </label>
                   <input type="file" className="text-sm text-foreground" />
                 </div>
-              )
+              );
             case "image":
               return (
                 <div key={block.id} className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-foreground">
                     {getLabel(block)}
                   </label>
-                  <input type="file" accept="image/*" className="text-sm text-foreground" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="text-sm text-foreground"
+                  />
                 </div>
-              )
+              );
             case "divider":
-              return <hr key={block.id} className="border-border" />
+              return <hr key={block.id} className="border-border" />;
             case "page-break":
             case "new-page":
               return (
@@ -412,12 +461,12 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                   </span>
                   <hr className="border-border flex-1" />
                 </div>
-              )
+              );
             default:
-              return null
+              return null;
           }
         })}
       </div>
     </div>
-  )
+  );
 }

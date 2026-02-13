@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useRef, useState, useEffect, useCallback } from "react"
+import { useRef, useState, useEffect, useCallback } from "react";
 import {
   Trash2,
   Plus,
@@ -8,22 +8,22 @@ import {
   Star,
   CreditCard,
   Wallet,
-} from "lucide-react"
-import type { FormBlock, BlockType } from "./types"
-import { SlashCommandMenu } from "./slash-command-menu"
+} from "lucide-react";
+import type { FormBlock, BlockType } from "./types";
+import { SlashCommandMenu } from "./slash-command-menu";
 
 interface FormBlockProps {
-  block: FormBlock
-  isActive: boolean
-  onFocus: () => void
-  onUpdate: (block: FormBlock) => void
-  onDelete: () => void
-  onAddBelow: () => void
-  onInsertBlock: (type: BlockType) => void
-  onOpenInsertDialog: () => void
-  onDragStart: (e: React.DragEvent) => void
-  onDragOver: (e: React.DragEvent) => void
-  onDragEnd: () => void
+  block: FormBlock;
+  isActive: boolean;
+  onFocus: () => void;
+  onUpdate: (block: FormBlock) => void;
+  onDelete: () => void;
+  onAddBelow: () => void;
+  onInsertBlock: (type: BlockType) => void;
+  onOpenInsertDialog: () => void;
+  onDragStart: (e: React.DragEvent) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragEnd: () => void;
 }
 
 export function FormBlockComponent({
@@ -39,147 +39,152 @@ export function FormBlockComponent({
   onDragOver,
   onDragEnd,
 }: FormBlockProps) {
-  const textInputRef = useRef<HTMLDivElement>(null)
-  const labelInputRef = useRef<HTMLDivElement>(null)
-  const [showSlashMenu, setShowSlashMenu] = useState(false)
-  const [slashQuery, setSlashQuery] = useState("")
-  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 })
-  const [isDragOver, setIsDragOver] = useState(false)
+  const textInputRef = useRef<HTMLDivElement>(null);
+  const labelInputRef = useRef<HTMLDivElement>(null);
+  const [showSlashMenu, setShowSlashMenu] = useState(false);
+  const [slashQuery, setSlashQuery] = useState("");
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [isDragOver, setIsDragOver] = useState(false);
 
-  const isTextBlock = block.type === "text"
+  const isTextBlock = block.type === "text";
 
   const updateMenuPosition = useCallback(() => {
-    const ref = isTextBlock ? textInputRef : labelInputRef
+    const ref = isTextBlock ? textInputRef : labelInputRef;
     if (ref.current) {
-      const rect = ref.current.getBoundingClientRect()
+      const rect = ref.current.getBoundingClientRect();
       setMenuPosition({
         top: rect.bottom + 4,
         left: rect.left,
-      })
+      });
     }
-  }, [isTextBlock])
+  }, [isTextBlock]);
 
   const handleInput = useCallback(
     (e: React.FormEvent<HTMLDivElement>) => {
-      const text = e.currentTarget.textContent || ""
+      const text = e.currentTarget.textContent || "";
 
       if (text.startsWith("/")) {
-        setSlashQuery(text.slice(1))
+        setSlashQuery(text.slice(1));
         if (!showSlashMenu) {
-          setShowSlashMenu(true)
-          updateMenuPosition()
+          setShowSlashMenu(true);
+          updateMenuPosition();
         }
       } else if (showSlashMenu) {
-        setShowSlashMenu(false)
-        setSlashQuery("")
+        setShowSlashMenu(false);
+        setSlashQuery("");
       }
 
-      onUpdate({ ...block, content: text })
+      onUpdate({ ...block, content: text });
     },
-    [block, onUpdate, showSlashMenu, updateMenuPosition]
-  )
+    [block, onUpdate, showSlashMenu, updateMenuPosition],
+  );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (showSlashMenu) {
         if (["ArrowDown", "ArrowUp", "Enter", "Escape"].includes(e.key)) {
-          return
+          return;
         }
       }
 
       if (e.key === "Enter" && !e.shiftKey && !showSlashMenu) {
-        e.preventDefault()
-        onAddBelow()
+        e.preventDefault();
+        onAddBelow();
       }
 
       if (
         e.key === "Backspace" &&
         (block.content === "" || block.content === "/")
       ) {
-        if (block.type !== "text") return
-        e.preventDefault()
-        onDelete()
+        if (block.type !== "text") return;
+        e.preventDefault();
+        onDelete();
       }
     },
-    [block, onAddBelow, onDelete, showSlashMenu]
-  )
+    [block, onAddBelow, onDelete, showSlashMenu],
+  );
 
   const handleSlashSelect = useCallback(
     (type: BlockType) => {
-      setShowSlashMenu(false)
-      setSlashQuery("")
+      setShowSlashMenu(false);
+      setSlashQuery("");
       if (textInputRef.current) {
-        textInputRef.current.textContent = ""
+        textInputRef.current.textContent = "";
       }
-      onInsertBlock(type)
+      onInsertBlock(type);
     },
-    [onInsertBlock]
-  )
+    [onInsertBlock],
+  );
 
   const handleOptionChange = (index: number, value: string) => {
-    const newOptions = [...(block.options || [])]
-    newOptions[index] = value
-    onUpdate({ ...block, options: newOptions })
-  }
+    const newOptions = [...(block.options || [])];
+    newOptions[index] = value;
+    onUpdate({ ...block, options: newOptions });
+  };
 
   const addOption = () => {
     const newOptions = [
       ...(block.options || []),
       `Option ${(block.options?.length || 0) + 1}`,
-    ]
-    onUpdate({ ...block, options: newOptions })
-  }
+    ];
+    onUpdate({ ...block, options: newOptions });
+  };
 
   const removeOption = (index: number) => {
-    const newOptions = (block.options || []).filter((_, i) => i !== index)
-    onUpdate({ ...block, options: newOptions })
-  }
+    const newOptions = (block.options || []).filter((_, i) => i !== index);
+    onUpdate({ ...block, options: newOptions });
+  };
 
   const handleRowChange = (index: number, value: string) => {
-    const newRows = [...(block.rows || [])]
-    newRows[index] = value
-    onUpdate({ ...block, rows: newRows })
-  }
+    const newRows = [...(block.rows || [])];
+    newRows[index] = value;
+    onUpdate({ ...block, rows: newRows });
+  };
 
   const handleColumnChange = (index: number, value: string) => {
-    const newColumns = [...(block.columns || [])]
-    newColumns[index] = value
-    onUpdate({ ...block, columns: newColumns })
-  }
+    const newColumns = [...(block.columns || [])];
+    newColumns[index] = value;
+    onUpdate({ ...block, columns: newColumns });
+  };
 
   const handleTimeSettingChange = (
     key: "timeStart" | "timeEnd" | "timeStep",
-    value: string
+    value: string,
   ) => {
     if (key === "timeStep") {
-      const next = Number(value)
-      onUpdate({ ...block, timeStep: Number.isNaN(next) ? undefined : next })
-      return
+      const next = Number(value);
+      onUpdate({ ...block, timeStep: Number.isNaN(next) ? undefined : next });
+      return;
     }
-    onUpdate({ ...block, [key]: value })
-  }
+    onUpdate({ ...block, [key]: value });
+  };
 
   // Focus text block on activation
   useEffect(() => {
-    if (isActive && block.type === "text" && block.content === "" && textInputRef.current) {
-      textInputRef.current.focus()
+    if (
+      isActive &&
+      block.type === "text" &&
+      block.content === "" &&
+      textInputRef.current
+    ) {
+      textInputRef.current.focus();
     }
-  }, [isActive, block.type, block.content])
+  }, [isActive, block.type, block.content]);
 
   // For non-text blocks, focus the label input on activation
   useEffect(() => {
     if (isActive && block.type !== "text" && labelInputRef.current) {
-      labelInputRef.current.focus()
+      labelInputRef.current.focus();
     }
-  }, [isActive, block.type])
+  }, [isActive, block.type]);
 
   const labelBaseClass =
-    "text-sm font-medium text-foreground outline-none mb-2 block w-full empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50"
+    "text-sm font-medium text-foreground outline-none mb-2 block w-full empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50";
 
   const renderEditableLabel = (
     placeholder: string,
     ariaLabel: string,
-    className?: string
+    className?: string,
   ) => (
     <div
       ref={labelInputRef}
@@ -188,20 +193,20 @@ export function FormBlockComponent({
       className={className || labelBaseClass}
       data-placeholder={placeholder}
       onInput={(e) => {
-        const text = e.currentTarget.textContent || ""
-        onUpdate({ ...block, content: text })
+        const text = e.currentTarget.textContent || "";
+        onUpdate({ ...block, content: text });
       }}
       onKeyDown={(e) => {
         if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault()
-          onAddBelow()
+          e.preventDefault();
+          onAddBelow();
         }
       }}
       onFocus={onFocus}
       role="textbox"
       aria-label={ariaLabel}
     />
-  )
+  );
 
   const renderBlockContent = () => {
     switch (block.type) {
@@ -211,40 +216,40 @@ export function FormBlockComponent({
             {renderEditableLabel(
               "Heading 1",
               "Heading 1",
-              "text-3xl font-bold text-foreground outline-none w-full block empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30"
+              "text-3xl font-bold text-foreground outline-none w-full block empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30",
             )}
           </div>
-        )
+        );
       case "heading2":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Heading 2",
               "Heading 2",
-              "text-2xl font-bold text-foreground outline-none w-full block empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30"
+              "text-2xl font-bold text-foreground outline-none w-full block empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30",
             )}
           </div>
-        )
+        );
       case "heading3":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Heading 3",
               "Heading 3",
-              "text-xl font-semibold text-foreground outline-none w-full block empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30"
+              "text-xl font-semibold text-foreground outline-none w-full block empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30",
             )}
           </div>
-        )
+        );
       case "paragraph":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Type something...",
               "Paragraph",
-              "text-base text-foreground outline-none w-full block leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30"
+              "text-base text-foreground outline-none w-full block leading-relaxed empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30",
             )}
           </div>
-        )
+        );
       case "short-answer":
         return (
           <div className="w-full">
@@ -253,7 +258,7 @@ export function FormBlockComponent({
               Short answer text
             </div>
           </div>
-        )
+        );
       case "long-answer":
         return (
           <div className="w-full">
@@ -262,7 +267,7 @@ export function FormBlockComponent({
               Long answer text
             </div>
           </div>
-        )
+        );
       case "email":
         return (
           <div className="w-full">
@@ -271,7 +276,7 @@ export function FormBlockComponent({
               <span>@</span> name@example.com
             </div>
           </div>
-        )
+        );
       case "number":
         return (
           <div className="w-full">
@@ -280,7 +285,7 @@ export function FormBlockComponent({
               0
             </div>
           </div>
-        )
+        );
       case "url":
         return (
           <div className="w-full">
@@ -289,7 +294,7 @@ export function FormBlockComponent({
               https://
             </div>
           </div>
-        )
+        );
       case "phone":
         return (
           <div className="w-full">
@@ -298,7 +303,7 @@ export function FormBlockComponent({
               +1 (555) 000-0000
             </div>
           </div>
-        )
+        );
       case "date":
         return (
           <div className="w-full">
@@ -307,14 +312,16 @@ export function FormBlockComponent({
               MM / DD / YYYY
             </div>
           </div>
-        )
+        );
       case "time":
         return (
           <div className="w-full">
             {renderEditableLabel("Time", "Time question")}
             <div className="flex flex-wrap items-end gap-4 text-sm text-foreground">
               <label className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">Start time</span>
+                <span className="text-xs text-muted-foreground">
+                  Start time
+                </span>
                 <input
                   type="time"
                   value={block.timeStart || ""}
@@ -336,7 +343,9 @@ export function FormBlockComponent({
                 />
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground">Step (min)</span>
+                <span className="text-xs text-muted-foreground">
+                  Step (min)
+                </span>
                 <input
                   type="number"
                   min={1}
@@ -358,14 +367,14 @@ export function FormBlockComponent({
               />
             </div>
           </div>
-        )
+        );
       case "multiple-choice":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Question",
               "Multiple choice question",
-              labelBaseClass.replace("mb-2", "mb-3")
+              labelBaseClass.replace("mb-2", "mb-3"),
             )}
             <div className="flex flex-col gap-2">
               {(block.options || []).map((option, i) => (
@@ -397,14 +406,14 @@ export function FormBlockComponent({
               </button>
             </div>
           </div>
-        )
+        );
       case "checkboxes":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Question",
               "Checkboxes question",
-              labelBaseClass.replace("mb-2", "mb-3")
+              labelBaseClass.replace("mb-2", "mb-3"),
             )}
             <div className="flex flex-col gap-2">
               {(block.options || []).map((option, i) => (
@@ -436,14 +445,14 @@ export function FormBlockComponent({
               </button>
             </div>
           </div>
-        )
+        );
       case "dropdown":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Question",
               "Dropdown question",
-              labelBaseClass.replace("mb-2", "mb-3")
+              labelBaseClass.replace("mb-2", "mb-3"),
             )}
             <div className="flex flex-col gap-2">
               {(block.options || []).map((option, i) => (
@@ -477,14 +486,14 @@ export function FormBlockComponent({
               </button>
             </div>
           </div>
-        )
+        );
       case "multi-select":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Question",
               "Multi-select question",
-              labelBaseClass.replace("mb-2", "mb-3")
+              labelBaseClass.replace("mb-2", "mb-3"),
             )}
             <div className="flex flex-col gap-2">
               {(block.options || []).map((option, i) => (
@@ -532,14 +541,14 @@ export function FormBlockComponent({
               </button>
             </div>
           </div>
-        )
+        );
       case "linear-scale":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Question",
               "Linear scale question",
-              labelBaseClass.replace("mb-2", "mb-3")
+              labelBaseClass.replace("mb-2", "mb-3"),
             )}
             <div className="flex items-center gap-2">
               {[1, 2, 3, 4, 5].map((n) => (
@@ -552,14 +561,14 @@ export function FormBlockComponent({
               ))}
             </div>
           </div>
-        )
+        );
       case "matrix":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Question",
               "Matrix question",
-              labelBaseClass.replace("mb-2", "mb-3")
+              labelBaseClass.replace("mb-2", "mb-3"),
             )}
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -587,9 +596,7 @@ export function FormBlockComponent({
                         <input
                           type="text"
                           value={row}
-                          onChange={(e) =>
-                            handleRowChange(ri, e.target.value)
-                          }
+                          onChange={(e) => handleRowChange(ri, e.target.value)}
                           className="text-sm text-foreground bg-transparent outline-none"
                         />
                       </td>
@@ -604,25 +611,22 @@ export function FormBlockComponent({
               </table>
             </div>
           </div>
-        )
+        );
       case "rating":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Question",
               "Rating question",
-              labelBaseClass.replace("mb-2", "mb-3")
+              labelBaseClass.replace("mb-2", "mb-3"),
             )}
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((n) => (
-                <Star
-                  key={n}
-                  className="h-6 w-6 text-muted-foreground/30"
-                />
+                <Star key={n} className="h-6 w-6 text-muted-foreground/30" />
               ))}
             </div>
           </div>
-        )
+        );
       case "payment":
         return (
           <div className="w-full">
@@ -632,7 +636,7 @@ export function FormBlockComponent({
               <span className="text-sm">Payment collection field</span>
             </div>
           </div>
-        )
+        );
       case "signature":
         return (
           <div className="w-full">
@@ -653,14 +657,14 @@ export function FormBlockComponent({
               <span className="text-sm mt-2">Draw signature here</span>
             </div>
           </div>
-        )
+        );
       case "ranking":
         return (
           <div className="w-full">
             {renderEditableLabel(
               "Ranking question",
               "Ranking question",
-              labelBaseClass.replace("mb-2", "mb-3")
+              labelBaseClass.replace("mb-2", "mb-3"),
             )}
             <div className="flex flex-col gap-2">
               {(block.options || []).map((option, i) => (
@@ -698,20 +702,17 @@ export function FormBlockComponent({
               </button>
             </div>
           </div>
-        )
+        );
       case "wallet-connect":
         return (
           <div className="w-full">
-            {renderEditableLabel(
-              "Wallet Connect",
-              "Wallet Connect question"
-            )}
+            {renderEditableLabel("Wallet Connect", "Wallet Connect question")}
             <div className="border border-border rounded-md p-4 flex items-center gap-3 text-muted-foreground pointer-events-none">
               <Wallet className="h-5 w-5" />
               <span className="text-sm">Connect your wallet</span>
             </div>
           </div>
-        )
+        );
       case "file-upload":
         return (
           <div className="w-full">
@@ -734,13 +735,13 @@ export function FormBlockComponent({
               <span className="text-sm mt-2">Click or drag to upload</span>
             </div>
           </div>
-        )
+        );
       case "divider":
         return (
           <div className="w-full py-2">
             <hr className="border-border" />
           </div>
-        )
+        );
       case "image":
         return (
           <div className="w-full">
@@ -762,7 +763,7 @@ export function FormBlockComponent({
               <span className="text-sm mt-2">Click to upload image</span>
             </div>
           </div>
-        )
+        );
       case "page-break":
       case "new-page":
         return (
@@ -773,7 +774,7 @@ export function FormBlockComponent({
             </span>
             <hr className="border-border flex-1" />
           </div>
-        )
+        );
       default:
         // "text" block type - the editable empty block
         return (
@@ -791,9 +792,9 @@ export function FormBlockComponent({
               aria-label="Text block"
             />
           </div>
-        )
+        );
     }
-  }
+  };
 
   return (
     <div
@@ -802,21 +803,21 @@ export function FormBlockComponent({
       }`}
       draggable
       onDragStart={(e) => {
-        e.dataTransfer.effectAllowed = "move"
-        e.dataTransfer.setData("text/plain", block.id)
-        onDragStart(e)
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", block.id);
+        onDragStart(e);
       }}
       onDragOver={(e) => {
-        e.preventDefault()
-        e.dataTransfer.dropEffect = "move"
-        setIsDragOver(true)
-        onDragOver(e)
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        setIsDragOver(true);
+        onDragOver(e);
       }}
       onDragLeave={() => setIsDragOver(false)}
       onDrop={() => setIsDragOver(false)}
       onDragEnd={() => {
-        setIsDragOver(false)
-        onDragEnd()
+        setIsDragOver(false);
+        onDragEnd();
       }}
     >
       {/* Action buttons */}
@@ -827,8 +828,8 @@ export function FormBlockComponent({
       >
         <button
           onClick={(e) => {
-            e.stopPropagation()
-            onDelete()
+            e.stopPropagation();
+            onDelete();
           }}
           className="p-1 rounded hover:bg-accent text-muted-foreground/50 hover:text-destructive transition-colors"
           aria-label="Delete block"
@@ -837,8 +838,8 @@ export function FormBlockComponent({
         </button>
         <button
           onClick={(e) => {
-            e.stopPropagation()
-            onOpenInsertDialog()
+            e.stopPropagation();
+            onOpenInsertDialog();
           }}
           className="p-1 rounded hover:bg-accent text-muted-foreground/50 hover:text-foreground transition-colors"
           aria-label="Insert block"
@@ -865,10 +866,10 @@ export function FormBlockComponent({
         position={menuPosition}
         onSelect={handleSlashSelect}
         onClose={() => {
-          setShowSlashMenu(false)
-          setSlashQuery("")
+          setShowSlashMenu(false);
+          setSlashQuery("");
         }}
       />
     </div>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { Zap, Clock, Settings, ChevronRight } from "lucide-react"
+import { Zap, Clock, Settings, ChevronRight } from "lucide-react";
 
 interface NavbarProps {
-  formTitle: string
-  isPreview: boolean
-  onTogglePreview: () => void
+  formTitle: string;
+  isPreview: boolean;
+  onTogglePreview: () => void;
 }
 
 export function Navbar({ formTitle, isPreview, onTogglePreview }: NavbarProps) {
@@ -66,5 +66,5 @@ export function Navbar({ formTitle, isPreview, onTogglePreview }: NavbarProps) {
         </button>
       </div>
     </header>
-  )
+  );
 }
