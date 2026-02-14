@@ -5,6 +5,7 @@ import { FormBuilder } from "@/components/form-builder/form-builder";
 import { Navbar } from "@/components/form-builder/navbar";
 import { Space_Grotesk } from "next/font/google";
 import {
+  Ban,
   CornerDownLeft,
   LayoutTemplate,
   Sparkles,
@@ -109,26 +110,58 @@ export default function BuilderPage() {
               Get started
             </div>
             <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setStarted(true)}
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+              >
                 <Sparkles className="h-4 w-4" />
                 Create your first form
-              </div>
-              <div className="flex items-center gap-2">
+              </button>
+              <button
+                type="button"
+                aria-disabled="true"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+              >
                 <LayoutTemplate className="h-4 w-4" />
                 Get started with templates
-              </div>
-              <div className="flex items-center gap-2">
+                <span className="opacity-0 transition-opacity group-hover:opacity-100">
+                  <Ban className="h-3.5 w-3.5 text-destructive" />
+                </span>
+              </button>
+              <button
+                type="button"
+                aria-disabled="true"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+              >
                 <Share2 className="h-4 w-4" />
                 Embed your form
-              </div>
-              <div className="flex items-center gap-2">
+                <span className="opacity-0 transition-opacity group-hover:opacity-100">
+                  <Ban className="h-3.5 w-3.5 text-destructive" />
+                </span>
+              </button>
+              <button
+                type="button"
+                aria-disabled="true"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+              >
                 <BookOpen className="h-4 w-4" />
                 Help center
-              </div>
-              <div className="flex items-center gap-2">
+                <span className="opacity-0 transition-opacity group-hover:opacity-100">
+                  <Ban className="h-3.5 w-3.5 text-destructive" />
+                </span>
+              </button>
+              <button
+                type="button"
+                aria-disabled="true"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+              >
                 <Wand2 className="h-4 w-4" />
                 Learn about Tally Pro
-              </div>
+                <span className="opacity-0 transition-opacity group-hover:opacity-100">
+                  <Ban className="h-3.5 w-3.5 text-destructive" />
+                </span>
+              </button>
             </div>
           </div>
           <div>
@@ -136,26 +169,61 @@ export default function BuilderPage() {
               How-to guides
             </div>
             <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
+              <button
+                type="button"
+                aria-disabled="true"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+              >
                 <Sparkles className="h-4 w-4" />
                 Conditional logic
-              </div>
-              <div className="flex items-center gap-2">
+                <span className="opacity-0 transition-opacity group-hover:opacity-100">
+                  <Ban className="h-3.5 w-3.5 text-destructive" />
+                </span>
+              </button>
+              <button
+                type="button"
+                aria-disabled="true"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+              >
                 <Calculator className="h-4 w-4" />
                 Calculator
-              </div>
-              <div className="flex items-center gap-2">
+                <span className="opacity-0 transition-opacity group-hover:opacity-100">
+                  <Ban className="h-3.5 w-3.5 text-destructive" />
+                </span>
+              </button>
+              <button
+                type="button"
+                aria-disabled="true"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+              >
                 <EyeOff className="h-4 w-4" />
                 Hidden fields
-              </div>
-              <div className="flex items-center gap-2">
+                <span className="opacity-0 transition-opacity group-hover:opacity-100">
+                  <Ban className="h-3.5 w-3.5 text-destructive" />
+                </span>
+              </button>
+              <button
+                type="button"
+                aria-disabled="true"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+              >
                 <AtSign className="h-4 w-4" />
                 Mentions
-              </div>
-              <div className="flex items-center gap-2">
+                <span className="opacity-0 transition-opacity group-hover:opacity-100">
+                  <Ban className="h-3.5 w-3.5 text-destructive" />
+                </span>
+              </button>
+              <button
+                type="button"
+                aria-disabled="true"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+              >
                 <DollarSign className="h-4 w-4" />
                 Collect payments
-              </div>
+                <span className="opacity-0 transition-opacity group-hover:opacity-100">
+                  <Ban className="h-3.5 w-3.5 text-destructive" />
+                </span>
+              </button>
             </div>
           </div>
         </div>

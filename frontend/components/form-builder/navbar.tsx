@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Zap, Clock, Settings, ChevronRight } from "lucide-react";
+import { Zap, Clock, Settings, ChevronRight, Ban } from "lucide-react";
 import { clearAuthToken, getAuthToken } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 
@@ -97,22 +97,34 @@ export function Navbar({
           Dashboard
         </a>
         <button
-          className="p-2 rounded-md hover:bg-accent text-muted-foreground transition-colors"
+          aria-disabled="true"
+          className="group relative p-2 rounded-md hover:bg-accent text-muted-foreground hover:text-destructive transition-colors"
           aria-label="Integrations"
         >
           <Zap className="h-4 w-4" />
+          <span className="pointer-events-none absolute -right-0.5 -top-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+            <Ban className="h-3 w-3 text-destructive" />
+          </span>
         </button>
         <button
-          className="p-2 rounded-md hover:bg-accent text-muted-foreground transition-colors"
+          aria-disabled="true"
+          className="group relative p-2 rounded-md hover:bg-accent text-muted-foreground hover:text-destructive transition-colors"
           aria-label="History"
         >
           <Clock className="h-4 w-4" />
+          <span className="pointer-events-none absolute -right-0.5 -top-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+            <Ban className="h-3 w-3 text-destructive" />
+          </span>
         </button>
         <button
-          className="p-2 rounded-md hover:bg-accent text-muted-foreground transition-colors"
+          aria-disabled="true"
+          className="group relative p-2 rounded-md hover:bg-accent text-muted-foreground hover:text-destructive transition-colors"
           aria-label="Settings"
         >
           <Settings className="h-4 w-4" />
+          <span className="pointer-events-none absolute -right-0.5 -top-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+            <Ban className="h-3 w-3 text-destructive" />
+          </span>
         </button>
         {hasToken ? (
           <button
