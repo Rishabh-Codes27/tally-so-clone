@@ -53,8 +53,12 @@ function createBlock(type: BlockType): FormBlock {
   return base;
 }
 
-export function FormBuilder() {
-  const [formTitle, setFormTitle] = useState("");
+interface FormBuilderProps {
+  initialTitle?: string;
+}
+
+export function FormBuilder({ initialTitle = "" }: FormBuilderProps) {
+  const [formTitle, setFormTitle] = useState(initialTitle);
   const [blocks, setBlocks] = useState<FormBlock[]>([
     { id: generateId(), type: "text", content: "" },
   ]);

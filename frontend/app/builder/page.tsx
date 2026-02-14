@@ -24,6 +24,7 @@ const displayFont = Space_Grotesk({
 
 export default function BuilderPage() {
   const [started, setStarted] = useState(false);
+  const [draftTitle, setDraftTitle] = useState("");
 
   useEffect(() => {
     if (started) return;
@@ -38,7 +39,7 @@ export default function BuilderPage() {
   }, [started]);
 
   if (started) {
-    return <FormBuilder />;
+    return <FormBuilder initialTitle={draftTitle} />;
   }
 
   const noop = () => undefined;
@@ -56,11 +57,24 @@ export default function BuilderPage() {
       />
 
       <main className="mx-auto flex max-w-3xl flex-col items-center px-6 pt-24 text-center">
-        <h1
-          className={`${displayFont.className} text-4xl font-semibold text-muted-foreground/70 md:text-5xl`}
-        >
-          Form title
-        </h1>
+        <input
+          autoFocus
+          type="text"
+          value={draftTitle}
+          onChange={(event) => {
+            setDraftTitle(event.target.value);
+            setStarted(true);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              setStarted(true);
+            }
+          }}
+          placeholder="Form title"
+          className={`${displayFont.className} w-full text-center text-4xl font-semibold text-foreground/70 placeholder:text-muted-foreground/50 outline-none bg-transparent md:text-5xl`}
+          aria-label="Form title"
+        />
         <div className="mt-10 flex flex-col items-center gap-3 text-sm text-muted-foreground">
           <button
             onClick={() => setStarted(true)}
