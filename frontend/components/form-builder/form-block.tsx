@@ -161,15 +161,10 @@ export function FormBlockComponent({
 
   // Focus text block on activation
   useEffect(() => {
-    if (
-      isActive &&
-      block.type === "text" &&
-      block.content === "" &&
-      textInputRef.current
-    ) {
+    if (isActive && block.type === "text" && textInputRef.current) {
       textInputRef.current.focus();
     }
-  }, [isActive, block.type, block.content]);
+  }, [isActive, block.type]);
 
   // For non-text blocks, focus the label input on activation
   useEffect(() => {

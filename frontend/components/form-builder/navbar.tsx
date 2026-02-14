@@ -1,14 +1,27 @@
 "use client";
 
 import { Zap, Clock, Settings, ChevronRight } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface NavbarProps {
   formTitle: string;
   isPreview: boolean;
   onTogglePreview: () => void;
+  onPublish: () => void;
+  isPublishing: boolean;
+  shareUrl: string | null;
+  responsesUrl: string | null;
 }
 
-export function Navbar({ formTitle, isPreview, onTogglePreview }: NavbarProps) {
+export function Navbar({
+  formTitle,
+  isPreview,
+  onTogglePreview,
+  onPublish,
+  isPublishing,
+  shareUrl,
+  responsesUrl,
+}: NavbarProps) {
   return (
     <header className="flex items-center justify-between h-12 px-4 border-b border-border bg-background">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -30,6 +43,50 @@ export function Navbar({ formTitle, isPreview, onTogglePreview }: NavbarProps) {
         </span>
       </div>
       <div className="flex items-center gap-1">
+        {shareUrl ? (
+          <button
+            onClick={() => {
+              if (!navigator?.clipboard?.writeText) {
+                toast({
+                  title: "Copy failed",
+                  description: "Clipboard is not available in this browser.",
+                });
+                return;
+              }
+              navigator.clipboard
+                .writeText(shareUrl)
+                .then(() => {
+                  toast({
+                    title: "Link copied",
+                    description: shareUrl,
+                  });
+                })
+                .catch(() => {
+                  toast({
+                    title: "Copy failed",
+                    description: "Could not copy the link.",
+                  });
+                });
+            }}
+            className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+          >
+            Copy link
+          </button>
+        ) : null}
+        {responsesUrl ? (
+          <a
+            href={responsesUrl}
+            className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+          >
+            Responses
+          </a>
+        ) : null}
+        <a
+          href="/forms"
+          className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+        >
+          Forms
+        </a>
         <button
           className="p-2 rounded-md hover:bg-accent text-muted-foreground transition-colors"
           aria-label="Integrations"
@@ -48,9 +105,6 @@ export function Navbar({ formTitle, isPreview, onTogglePreview }: NavbarProps) {
         >
           <Settings className="h-4 w-4" />
         </button>
-        <button className="px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors">
-          Customize
-        </button>
         <button className="px-3 py-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors">
           Sign up
         </button>
@@ -61,8 +115,12 @@ export function Navbar({ formTitle, isPreview, onTogglePreview }: NavbarProps) {
         >
           {isPreview ? "Edit" : "Preview"}
         </button>
-        <button className="px-4 py-1.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 rounded-full transition-colors">
-          Publish
+        <button
+          onClick={onPublish}
+          disabled={isPublishing}
+          className="px-4 py-1.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isPublishing ? "Publishing..." : "Publish"}
         </button>
       </div>
     </header>

@@ -7,6 +7,7 @@ import { FormPreview } from "./form-preview";
 import { InsertBlockDialog } from "./insert-block-dialog";
 import type { FormBlock, BlockType } from "./types";
 import { HelpCircle } from "lucide-react";
+import { createForm } from "@/lib/api";
 
 function generateId() {
   return Math.random().toString(36).slice(2, 10);
@@ -57,6 +58,10 @@ export function FormBuilder() {
     null,
   );
   const [isPreview, setIsPreview] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [responsesUrl, setResponsesUrl] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<string | null>(null);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
 
@@ -163,12 +168,46 @@ export function FormBuilder() {
     setTimeout(() => setActiveBlockId(newBlock.id), 0);
   }, [blocks]);
 
+  const handlePublish = useCallback(async () => {
+    setIsPublishing(true);
+    setPublishError(null);
+    try {
+      const response = await createForm({
+        title: formTitle,
+        blocks,
+      });
+      const frontendShareUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/s/${response.share_id}`
+          : response.share_url;
+      const frontendResponsesUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/responses/${response.id}`
+          : null;
+      setShareUrl(frontendShareUrl ?? null);
+      setResponsesUrl(frontendResponsesUrl);
+      if (frontendShareUrl && navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(frontendShareUrl).catch(() => undefined);
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to publish";
+      setPublishError(message);
+    } finally {
+      setIsPublishing(false);
+    }
+  }, [blocks, formTitle]);
+
   return (
     <div className="flex flex-col h-screen bg-background">
       <Navbar
         formTitle={formTitle}
         isPreview={isPreview}
         onTogglePreview={() => setIsPreview((prev) => !prev)}
+        onPublish={handlePublish}
+        isPublishing={isPublishing}
+        shareUrl={shareUrl}
+        responsesUrl={responsesUrl}
       />
 
       <main className="flex-1 overflow-y-auto">
@@ -182,6 +221,12 @@ export function FormBuilder() {
                 type="text"
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && blocks.length > 0) {
+                    e.preventDefault();
+                    setActiveBlockId(blocks[0].id);
+                  }
+                }}
                 placeholder="Form title"
                 className="w-full text-center text-4xl font-bold text-foreground placeholder:text-muted-foreground/30 outline-none bg-transparent"
                 aria-label="Form title"
@@ -223,6 +268,12 @@ export function FormBuilder() {
                 Submit
               </button>
             </div>
+
+            {publishError ? (
+              <div className="mt-4 text-sm text-destructive">
+                {publishError}
+              </div>
+            ) : null}
 
             {/* Empty state click area */}
             <div
