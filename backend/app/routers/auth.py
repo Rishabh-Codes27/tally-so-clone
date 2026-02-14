@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import User
-from ..schemas import Token, UserCreate, UserOut
+from ..schemas import Token, UserCreate, UserOut, UserUpdate
 from ..services import auth_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -96,3 +96,19 @@ def login(
 @router.get("/me", response_model=UserOut)
 def me(current_user: User = Depends(get_current_user)) -> UserOut:
     return UserOut.model_validate(current_user)
+
+
+@router.patch("/me", response_model=UserOut)
+def update_me(
+    payload: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> UserOut:
+    try:
+        user = auth_service.update_user(
+            db, current_user, payload.username, payload.password
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return UserOut.model_validate(user)

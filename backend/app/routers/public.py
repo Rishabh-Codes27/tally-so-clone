@@ -15,7 +15,7 @@ def get_form_by_share_id(
     db: Session = Depends(get_db),
 ) -> FormOut:
     form = form_service.get_form_by_share_id(db, share_id)
-    return form_service.form_to_out(form, request)
+    return form_service.form_to_out(form, request, db)
 
 
 @router.post("/s/{share_id}/submissions", response_model=SubmissionOut)

@@ -11,6 +11,7 @@ type FormResponse = {
   blocks: FormBlock[];
   share_id: string;
   share_url: string | null;
+  response_count: number;
   created_at: string;
   updated_at: string;
 };
@@ -29,6 +30,11 @@ type SubmissionResponse = {
 type TokenResponse = {
   access_token: string;
   token_type: string;
+};
+
+type UserResponse = {
+  id: number;
+  username: string;
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000";
@@ -86,6 +92,22 @@ export async function register(username: string, password: string) {
   const data = await handleJson<TokenResponse>(res);
   setAuthToken(data.access_token);
   return data;
+}
+
+export async function getCurrentUser() {
+  const res = await fetch(`${API_BASE}/auth/me`, {
+    headers: { ...authHeaders() },
+  });
+  return handleJson<UserResponse>(res);
+}
+
+export async function updateUser(username?: string, password?: string) {
+  const res = await fetch(`${API_BASE}/auth/me`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ username, password }),
+  });
+  return handleJson<UserResponse>(res);
 }
 
 export async function createForm(payload: FormCreatePayload) {

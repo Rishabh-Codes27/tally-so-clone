@@ -69,3 +69,21 @@ def ensure_demo_user(db: Session) -> User:
     db.commit()
     db.refresh(user)
     return user
+
+
+def update_user(
+    db: Session, user: User, username: str | None = None, password: str | None = None
+) -> User:
+    if username is not None and username != user.username:
+        existing = get_user_by_username(db, username)
+        if existing:
+            raise ValueError("Username already exists")
+        user.username = username
+
+    if password is not None:
+        user.hashed_password = hash_password(password)
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user

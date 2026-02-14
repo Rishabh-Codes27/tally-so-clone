@@ -7,7 +7,13 @@ import { FormPreview } from "./form-preview";
 import { InsertBlockDialog } from "./insert-block-dialog";
 import type { FormBlock, BlockType } from "./types";
 import { HelpCircle, ImagePlus, Image, SlidersHorizontal } from "lucide-react";
+import { Space_Grotesk } from "next/font/google";
 import { createForm } from "@/lib/api";
+
+const builderFont = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 
 function generateId() {
   return Math.random().toString(36).slice(2, 10);
@@ -199,7 +205,9 @@ export function FormBuilder() {
   }, [blocks, formTitle]);
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div
+      className={`flex flex-col min-h-screen bg-muted/20 ${builderFont.className}`}
+    >
       <Navbar
         formTitle={formTitle}
         isPreview={isPreview}
@@ -214,10 +222,10 @@ export function FormBuilder() {
         {isPreview ? (
           <FormPreview formTitle={formTitle} blocks={blocks} />
         ) : (
-          <div className="max-w-2xl mx-auto px-6 py-16">
+          <div className="max-w-[640px] mx-auto px-5 sm:px-6 py-14">
             {/* Form Title */}
             <div className="mb-10 text-center group">
-              <div className="mb-3 flex items-center justify-center gap-4 text-xs text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+              <div className="mb-3 flex items-center justify-center gap-4 text-[11px] text-muted-foreground/70 opacity-0 transition-opacity group-hover:opacity-100">
                 <button
                   type="button"
                   className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 hover:bg-accent/60"
@@ -254,16 +262,16 @@ export function FormBuilder() {
                   }
                 }}
                 placeholder="Form title"
-                className="w-full text-center text-5xl font-semibold text-foreground placeholder:text-muted-foreground/40 outline-none bg-transparent"
+                className="w-full text-center text-4xl md:text-5xl font-semibold tracking-tight text-foreground placeholder:text-muted-foreground/35 outline-none bg-transparent"
                 aria-label="Form title"
               />
-              <p className="mt-4 text-sm text-muted-foreground/60">
+              <p className="mt-3 text-xs text-muted-foreground/55">
                 Type "/" to insert blocks
               </p>
             </div>
 
             {/* Blocks */}
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-4">
               {blocks.map((block, index) => (
                 <FormBlockComponent
                   key={block.id}
@@ -291,7 +299,7 @@ export function FormBuilder() {
             <div className="mt-10 flex justify-start">
               <button
                 type="button"
-                className="px-6 py-2 rounded-md bg-primary text-primary-foreground text-sm font-semibold"
+                className="px-6 py-2 rounded-md bg-foreground text-background text-sm font-medium"
                 aria-label="Submit form"
               >
                 Submit

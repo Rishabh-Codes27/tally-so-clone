@@ -17,7 +17,7 @@ export default function SignInPage() {
     setIsSubmitting(true);
     try {
       await login(username, password);
-      router.push("/builder");
+      router.push("/dashboard");
     } catch (error) {
       toast({
         title: "Sign in failed",

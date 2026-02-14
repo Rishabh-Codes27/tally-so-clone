@@ -173,8 +173,30 @@ export function FormBlockComponent({
     }
   }, [isActive, block.type]);
 
+  useEffect(() => {
+    const ref = block.type === "text" ? textInputRef : labelInputRef;
+    if (!ref.current) return;
+    if (document.activeElement === ref.current) return;
+    const nextValue = block.content ?? "";
+    if (ref.current.textContent !== nextValue) {
+      ref.current.textContent = nextValue;
+    }
+  }, [block.content, block.type]);
+
   const labelBaseClass =
-    "text-sm font-medium text-foreground outline-none mb-2 block w-full empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50";
+    "text-sm font-semibold text-foreground/90 outline-none mb-2 block w-full empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/45";
+
+  const showFieldShell = ![
+    "text",
+    "heading1",
+    "heading2",
+    "heading3",
+    "paragraph",
+    "divider",
+    "image",
+    "page-break",
+    "new-page",
+  ].includes(block.type);
 
   const renderEditableLabel = (
     placeholder: string,
@@ -249,7 +271,7 @@ export function FormBlockComponent({
         return (
           <div className="w-full">
             {renderEditableLabel("Question", "Short answer question")}
-            <div className="border-b border-border py-2 text-sm text-muted-foreground pointer-events-none">
+            <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
               Short answer text
             </div>
           </div>
@@ -258,7 +280,7 @@ export function FormBlockComponent({
         return (
           <div className="w-full">
             {renderEditableLabel("Question", "Long answer question")}
-            <div className="border border-border rounded-md p-3 h-20 text-sm text-muted-foreground pointer-events-none">
+            <div className="border border-border/60 rounded-md p-3 h-20 text-sm text-muted-foreground/80 pointer-events-none">
               Long answer text
             </div>
           </div>
@@ -267,7 +289,7 @@ export function FormBlockComponent({
         return (
           <div className="w-full">
             {renderEditableLabel("Email address", "Email question")}
-            <div className="border-b border-border py-2 text-sm text-muted-foreground pointer-events-none flex items-center gap-2">
+            <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none flex items-center gap-2 max-w-sm">
               <span>@</span> name@example.com
             </div>
           </div>
@@ -276,7 +298,7 @@ export function FormBlockComponent({
         return (
           <div className="w-full">
             {renderEditableLabel("Number question", "Number question")}
-            <div className="border-b border-border py-2 text-sm text-muted-foreground pointer-events-none">
+            <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
               0
             </div>
           </div>
@@ -285,7 +307,7 @@ export function FormBlockComponent({
         return (
           <div className="w-full">
             {renderEditableLabel("URL", "URL question")}
-            <div className="border-b border-border py-2 text-sm text-muted-foreground pointer-events-none">
+            <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
               https://
             </div>
           </div>
@@ -294,7 +316,7 @@ export function FormBlockComponent({
         return (
           <div className="w-full">
             {renderEditableLabel("Phone number", "Phone question")}
-            <div className="border-b border-border py-2 text-sm text-muted-foreground pointer-events-none">
+            <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
               +1 (555) 000-0000
             </div>
           </div>
@@ -303,7 +325,7 @@ export function FormBlockComponent({
         return (
           <div className="w-full">
             {renderEditableLabel("Date", "Date question")}
-            <div className="border border-border rounded-md px-3 py-2 text-sm text-muted-foreground pointer-events-none inline-flex items-center gap-2">
+            <div className="border border-border/60 rounded-md px-3 py-2 text-sm text-muted-foreground/80 pointer-events-none inline-flex items-center gap-2">
               MM / DD / YYYY
             </div>
           </div>
@@ -323,7 +345,7 @@ export function FormBlockComponent({
                   onChange={(e) =>
                     handleTimeSettingChange("timeStart", e.target.value)
                   }
-                  className="border border-border rounded-md px-2 py-1 bg-transparent outline-none"
+                  className="border border-border/60 rounded-md px-2 py-1 bg-transparent outline-none"
                 />
               </label>
               <label className="flex flex-col gap-1">
@@ -334,7 +356,7 @@ export function FormBlockComponent({
                   onChange={(e) =>
                     handleTimeSettingChange("timeEnd", e.target.value)
                   }
-                  className="border border-border rounded-md px-2 py-1 bg-transparent outline-none"
+                  className="border border-border/60 rounded-md px-2 py-1 bg-transparent outline-none"
                 />
               </label>
               <label className="flex flex-col gap-1">
@@ -348,7 +370,7 @@ export function FormBlockComponent({
                   onChange={(e) =>
                     handleTimeSettingChange("timeStep", e.target.value)
                   }
-                  className="border border-border rounded-md px-2 py-1 w-20 bg-transparent outline-none"
+                  className="border border-border/60 rounded-md px-2 py-1 w-20 bg-transparent outline-none"
                 />
               </label>
             </div>
@@ -358,7 +380,7 @@ export function FormBlockComponent({
                 min={block.timeStart}
                 max={block.timeEnd}
                 step={block.timeStep ? block.timeStep * 60 : undefined}
-                className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
+                className="border border-border/60 rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
               />
             </div>
           </div>
@@ -778,7 +800,7 @@ export function FormBlockComponent({
               ref={textInputRef}
               contentEditable
               suppressContentEditableWarning
-              className="text-sm text-foreground outline-none w-full empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30"
+              className="text-sm text-foreground/90 outline-none w-full empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/40"
               data-placeholder="Type '/' to insert blocks"
               onInput={handleInput}
               onKeyDown={handleKeyDown}
@@ -793,7 +815,7 @@ export function FormBlockComponent({
 
   return (
     <div
-      className={`group relative flex items-start gap-0 py-1.5 rounded-md transition-all ${
+      className={`group relative flex items-start gap-3 py-2 rounded-md transition-all ${
         isDragOver ? "bg-accent/50 border-t-2 border-primary" : ""
       }`}
       draggable
@@ -817,7 +839,7 @@ export function FormBlockComponent({
     >
       {/* Action buttons */}
       <div
-        className={`flex items-center gap-0.5 pt-0.5 shrink-0 transition-opacity ${
+        className={`-ml-9 flex items-center gap-0.5 pt-1 shrink-0 transition-opacity ${
           isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         }`}
       >
@@ -826,7 +848,7 @@ export function FormBlockComponent({
             e.stopPropagation();
             onDelete();
           }}
-          className="p-1 rounded hover:bg-accent text-muted-foreground/50 hover:text-destructive transition-colors"
+          className="p-1 rounded hover:bg-accent text-muted-foreground/40 hover:text-destructive transition-colors"
           aria-label="Delete block"
         >
           <Trash2 className="h-4 w-4" />
@@ -836,13 +858,13 @@ export function FormBlockComponent({
             e.stopPropagation();
             onOpenInsertDialog();
           }}
-          className="p-1 rounded hover:bg-accent text-muted-foreground/50 hover:text-foreground transition-colors"
+          className="p-1 rounded hover:bg-accent text-muted-foreground/40 hover:text-foreground transition-colors"
           aria-label="Insert block"
         >
           <Plus className="h-4 w-4" />
         </button>
         <div
-          className="p-1 rounded hover:bg-accent text-muted-foreground/50 hover:text-foreground cursor-grab active:cursor-grabbing transition-colors"
+          className="p-1 rounded hover:bg-accent text-muted-foreground/40 hover:text-foreground cursor-grab active:cursor-grabbing transition-colors"
           aria-label="Drag to reorder"
         >
           <GripVertical className="h-4 w-4" />
@@ -850,7 +872,14 @@ export function FormBlockComponent({
       </div>
 
       {/* Block content */}
-      <div className="flex-1 min-w-0" onClick={onFocus}>
+      <div
+        className={`flex-1 min-w-0 ${
+          showFieldShell
+            ? "rounded-md border border-border/40 px-4 py-3 bg-background"
+            : ""
+        }`}
+        onClick={onFocus}
+      >
         {renderBlockContent()}
       </div>
 

@@ -36,5 +36,6 @@ class FormOut(BaseModel):
     blocks: list[FormBlock]
     share_id: str
     share_url: Optional[str] = None
+    response_count: int = 0
     created_at: datetime
     updated_at: datetime

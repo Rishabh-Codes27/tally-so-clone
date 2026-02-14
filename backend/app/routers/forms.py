@@ -19,7 +19,7 @@ def create_form(
 ) -> FormOut:
     user_id = current_user.id if current_user else None
     form = form_service.create_form(db, payload, user_id)
-    return form_service.form_to_out(form, request)
+    return form_service.form_to_out(form, request, db)
 
 
 @router.get("", response_model=list[FormOut])
@@ -29,7 +29,7 @@ def list_forms(
     db: Session = Depends(get_db),
 ) -> list[FormOut]:
     forms = form_service.list_forms(db, current_user.id)
-    return [form_service.form_to_out(form, request) for form in forms]
+    return [form_service.form_to_out(form, request, db) for form in forms]
 
 
 @router.get("/{form_id}", response_model=FormOut)
@@ -40,7 +40,7 @@ def get_form(
     db: Session = Depends(get_db),
 ) -> FormOut:
     form = form_service.get_form_by_id(db, form_id, current_user.id)
-    return form_service.form_to_out(form, request)
+    return form_service.form_to_out(form, request, db)
 
 
 @router.patch("/{form_id}", response_model=FormOut)
@@ -52,7 +52,7 @@ def update_form(
     db: Session = Depends(get_db),
 ) -> FormOut:
     form = form_service.update_form(db, form_id, payload, current_user.id)
-    return form_service.form_to_out(form, request)
+    return form_service.form_to_out(form, request, db)
 
 
 @router.delete("/{form_id}", status_code=status.HTTP_204_NO_CONTENT)

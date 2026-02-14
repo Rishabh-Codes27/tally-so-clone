@@ -91,10 +91,10 @@ export function Navbar({
           </a>
         ) : null}
         <a
-          href="/forms"
+          href="/dashboard"
           className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
         >
-          Forms
+          Dashboard
         </a>
         <button
           className="p-2 rounded-md hover:bg-accent text-muted-foreground transition-colors"

@@ -5,7 +5,7 @@ import secrets
 from fastapi import HTTPException, Request
 from sqlalchemy.orm import Session
 
-from ..models import Form
+from ..models import Form, Submission
 from ..schemas import FormCreate, FormOut, FormUpdate
 
 
@@ -18,13 +18,18 @@ def build_share_url(request: Request, share_id: str) -> str:
     return f"{base}/s/{share_id}"
 
 
-def form_to_out(form: Form, request: Request) -> FormOut:
+def form_to_out(form: Form, request: Request, db: Session | None = None) -> FormOut:
+    response_count = 0
+    if db:
+        response_count = db.query(Submission).filter(Submission.form_id == form.id).count()
+    
     return FormOut(
         id=form.id,
         title=form.title,
         blocks=form.blocks or [],
         share_id=form.share_id,
         share_url=build_share_url(request, form.share_id),
+        response_count=response_count,
         created_at=form.created_at,
         updated_at=form.updated_at,
     )
