@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Navbar } from "./navbar";
 import { FormBlockComponent } from "./form-block";
 import { FormPreview } from "./form-preview";
@@ -55,9 +55,13 @@ function createBlock(type: BlockType): FormBlock {
 
 interface FormBuilderProps {
   initialTitle?: string;
+  autoFocusFirstBlock?: boolean;
 }
 
-export function FormBuilder({ initialTitle = "" }: FormBuilderProps) {
+export function FormBuilder({
+  initialTitle = "",
+  autoFocusFirstBlock = false,
+}: FormBuilderProps) {
   const [formTitle, setFormTitle] = useState(initialTitle);
   const [blocks, setBlocks] = useState<FormBlock[]>([
     { id: generateId(), type: "text", content: "" },
@@ -74,6 +78,12 @@ export function FormBuilder({ initialTitle = "" }: FormBuilderProps) {
   const [publishError, setPublishError] = useState<string | null>(null);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!autoFocusFirstBlock || isPreview) return;
+    if (activeBlockId || blocks.length === 0) return;
+    setActiveBlockId(blocks[0].id);
+  }, [autoFocusFirstBlock, isPreview, activeBlockId, blocks]);
 
   const updateBlock = useCallback((updatedBlock: FormBlock) => {
     setBlocks((prev) =>

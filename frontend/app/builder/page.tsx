@@ -40,7 +40,7 @@ export default function BuilderPage() {
   }, [started]);
 
   if (started) {
-    return <FormBuilder initialTitle={draftTitle} />;
+    return <FormBuilder initialTitle={draftTitle} autoFocusFirstBlock={true} />;
   }
 
   const noop = () => undefined;
@@ -64,7 +64,6 @@ export default function BuilderPage() {
           value={draftTitle}
           onChange={(event) => {
             setDraftTitle(event.target.value);
-            setStarted(true);
           }}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
@@ -121,7 +120,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
               >
                 <LayoutTemplate className="h-4 w-4" />
                 Get started with templates
@@ -132,7 +131,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
               >
                 <Share2 className="h-4 w-4" />
                 Embed your form
@@ -143,7 +142,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
               >
                 <BookOpen className="h-4 w-4" />
                 Help center
@@ -154,7 +153,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
               >
                 <Wand2 className="h-4 w-4" />
                 Learn about Tally Pro
@@ -172,7 +171,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
               >
                 <Sparkles className="h-4 w-4" />
                 Conditional logic
@@ -183,7 +182,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
               >
                 <Calculator className="h-4 w-4" />
                 Calculator
@@ -194,7 +193,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
               >
                 <EyeOff className="h-4 w-4" />
                 Hidden fields
@@ -205,7 +204,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
               >
                 <AtSign className="h-4 w-4" />
                 Mentions
@@ -216,7 +215,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
               >
                 <DollarSign className="h-4 w-4" />
                 Collect payments

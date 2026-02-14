@@ -98,7 +98,7 @@ export function Navbar({
         </a>
         <button
           aria-disabled="true"
-          className="group relative p-2 rounded-md hover:bg-accent text-muted-foreground hover:text-destructive transition-colors"
+          className="group relative p-2 rounded-md hover:bg-accent text-foreground hover:text-foreground transition-colors cursor-not-allowed"
           aria-label="Integrations"
         >
           <Zap className="h-4 w-4" />
@@ -108,7 +108,7 @@ export function Navbar({
         </button>
         <button
           aria-disabled="true"
-          className="group relative p-2 rounded-md hover:bg-accent text-muted-foreground hover:text-destructive transition-colors"
+          className="group relative p-2 rounded-md hover:bg-accent text-foreground hover:text-foreground transition-colors cursor-not-allowed"
           aria-label="History"
         >
           <Clock className="h-4 w-4" />
@@ -118,7 +118,7 @@ export function Navbar({
         </button>
         <button
           aria-disabled="true"
-          className="group relative p-2 rounded-md hover:bg-accent text-muted-foreground hover:text-destructive transition-colors"
+          className="group relative p-2 rounded-md hover:bg-accent text-foreground hover:text-foreground transition-colors cursor-not-allowed"
           aria-label="Settings"
         >
           <Settings className="h-4 w-4" />

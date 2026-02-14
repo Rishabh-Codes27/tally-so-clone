@@ -20,7 +20,7 @@ export default function Page() {
         <div className="flex flex-wrap items-center gap-4 text-sm">
           <button
             aria-disabled="true"
-            className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive"
+            className="group inline-flex items-center gap-2 text-foreground hover:text-foreground cursor-not-allowed"
           >
             Product
             <span className="opacity-0 transition-opacity group-hover:opacity-100">
@@ -29,7 +29,7 @@ export default function Page() {
           </button>
           <button
             aria-disabled="true"
-            className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive"
+            className="group inline-flex items-center gap-2 text-foreground hover:text-foreground cursor-not-allowed"
           >
             Templates
             <span className="opacity-0 transition-opacity group-hover:opacity-100">
@@ -38,7 +38,7 @@ export default function Page() {
           </button>
           <button
             aria-disabled="true"
-            className="group inline-flex items-center gap-2 text-muted-foreground hover:text-destructive"
+            className="group inline-flex items-center gap-2 text-foreground hover:text-foreground cursor-not-allowed"
           >
             Pricing
             <span className="opacity-0 transition-opacity group-hover:opacity-100">
