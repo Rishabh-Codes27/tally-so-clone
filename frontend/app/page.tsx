@@ -26,7 +26,12 @@ export default function Page() {
           <button className="text-muted-foreground hover:text-foreground">
             Pricing
           </button>
-          <button className="text-foreground font-medium">Sign in</button>
+          <Link
+            href="/signin"
+            className="text-foreground font-medium hover:text-foreground/80"
+          >
+            Sign in
+          </Link>
         </div>
       </header>
 

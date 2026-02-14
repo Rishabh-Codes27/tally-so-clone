@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Zap, Clock, Settings, ChevronRight } from "lucide-react";
+import { clearAuthToken, getAuthToken } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 
 interface NavbarProps {
@@ -22,6 +25,12 @@ export function Navbar({
   shareUrl,
   responsesUrl,
 }: NavbarProps) {
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    setHasToken(Boolean(getAuthToken()));
+  }, []);
+
   return (
     <header className="flex items-center justify-between h-12 px-4 border-b border-border bg-background">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -105,9 +114,33 @@ export function Navbar({
         >
           <Settings className="h-4 w-4" />
         </button>
-        <button className="px-3 py-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors">
-          Sign up
-        </button>
+        {hasToken ? (
+          <button
+            onClick={() => {
+              clearAuthToken();
+              setHasToken(false);
+              window.location.href = "/";
+            }}
+            className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Sign out
+          </button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Link
+              href="/signin"
+              className="px-3 py-1.5 text-sm font-medium text-foreground hover:text-foreground/80 transition-colors"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/signup"
+              className="px-3 py-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              Sign up
+            </Link>
+          </div>
+        )}
         <button
           onClick={onTogglePreview}
           aria-pressed={isPreview}

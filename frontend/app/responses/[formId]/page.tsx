@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { listFormSubmissions } from "@/lib/api";
+import { getFormById, listFormSubmissions } from "@/lib/api";
 
 type SubmissionRow = {
   id: number;
@@ -15,15 +15,25 @@ export default function ResponsesPage() {
   const params = useParams<{ formId: string }>();
   const formId = Number(params?.formId);
   const [rows, setRows] = useState<SubmissionRow[]>([]);
+  const [questionMap, setQuestionMap] = useState<Record<string, string>>({});
+  const [formTitle, setFormTitle] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const isUnauthorized = error?.includes("Unauthorized") ?? false;
 
   useEffect(() => {
     if (!Number.isFinite(formId)) return;
     setIsLoading(true);
-    listFormSubmissions(formId)
-      .then((data) => {
+    Promise.all([listFormSubmissions(formId), getFormById(formId)])
+      .then(([data, form]) => {
         setRows(data);
+        setFormTitle(form.title);
+        const nextMap: Record<string, string> = {};
+        form.blocks.forEach((block) => {
+          const label = block.content?.trim() || "Untitled question";
+          nextMap[block.id] = label;
+        });
+        setQuestionMap(nextMap);
         setError(null);
       })
       .catch((err) => {
@@ -32,18 +42,38 @@ export default function ResponsesPage() {
       .finally(() => setIsLoading(false));
   }, [formId]);
 
+  const formatValue = (value: unknown) => {
+    if (typeof value === "string") return value;
+    if (typeof value === "number" || typeof value === "boolean") {
+      return String(value);
+    }
+    if (value === null || value === undefined) return "-";
+    return JSON.stringify(value);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-6 py-16">
         <h1 className="text-3xl font-bold text-foreground">Responses</h1>
         <p className="text-sm text-muted-foreground mt-2">
-          {Number.isFinite(formId) ? `Form ID: ${formId}` : "Form ID missing"}
+          {formTitle ? formTitle : "Form"}
         </p>
 
         {isLoading ? (
           <div className="mt-8 text-sm text-muted-foreground">Loading...</div>
         ) : error ? (
-          <div className="mt-8 text-sm text-destructive">{error}</div>
+          <div className="mt-8 text-sm text-destructive">
+            {isUnauthorized ? (
+              <span>
+                Please sign in to view responses.{" "}
+                <a href="/signin" className="underline">
+                  Sign in
+                </a>
+              </span>
+            ) : (
+              error
+            )}
+          </div>
         ) : rows.length === 0 ? (
           <div className="mt-8 text-sm text-muted-foreground">
             No responses yet.
@@ -59,9 +89,18 @@ export default function ResponsesPage() {
                   <span>Response #{row.id}</span>
                   <span>{row.created_at}</span>
                 </div>
-                <pre className="mt-3 text-xs whitespace-pre-wrap break-words">
-                  {JSON.stringify(row.data, null, 2)}
-                </pre>
+                <div className="mt-4 space-y-2 text-sm">
+                  {Object.entries(row.data).map(([key, value]) => (
+                    <div key={key} className="flex flex-col gap-1">
+                      <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                        {questionMap[key] ?? key}
+                      </span>
+                      <span className="text-foreground">
+                        {formatValue(value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

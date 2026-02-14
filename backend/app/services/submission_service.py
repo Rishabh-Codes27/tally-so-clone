@@ -5,8 +5,16 @@ from ..models import Form, Submission
 from ..schemas import SubmissionCreate
 
 
-def list_submissions_for_form(db: Session, form_id: int) -> list[Submission]:
-    form = db.query(Form).filter(Form.id == form_id).first()
+def list_submissions_for_form(
+    db: Session,
+    form_id: int,
+    user_id: int,
+) -> list[Submission]:
+    form = (
+        db.query(Form)
+        .filter(Form.id == form_id, Form.user_id == user_id)
+        .first()
+    )
     if not form:
         raise HTTPException(status_code=404, detail="Form not found")
 

@@ -10,6 +10,9 @@ class Form(Base):
     __tablename__ = "forms"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), index=True, nullable=True
+    )
     title: Mapped[str] = mapped_column(String(255), default="")
     blocks: Mapped[list] = mapped_column(JSON, default=list)
     share_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
@@ -20,6 +23,17 @@ class Form(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
+    )
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    username: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
     )
 
 

@@ -6,7 +6,7 @@ import { FormBlockComponent } from "./form-block";
 import { FormPreview } from "./form-preview";
 import { InsertBlockDialog } from "./insert-block-dialog";
 import type { FormBlock, BlockType } from "./types";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, ImagePlus, Image, SlidersHorizontal } from "lucide-react";
 import { createForm } from "@/lib/api";
 
 function generateId() {
@@ -216,7 +216,33 @@ export function FormBuilder() {
         ) : (
           <div className="max-w-2xl mx-auto px-6 py-16">
             {/* Form Title */}
-            <div className="mb-8">
+            <div className="mb-10 text-center group">
+              <div className="mb-3 flex items-center justify-center gap-4 text-xs text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 hover:bg-accent/60"
+                  aria-label="Add logo"
+                >
+                  <ImagePlus className="h-3.5 w-3.5" />
+                  Add logo
+                </button>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 hover:bg-accent/60"
+                  aria-label="Add cover"
+                >
+                  <Image className="h-3.5 w-3.5" />
+                  Add cover
+                </button>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 hover:bg-accent/60"
+                  aria-label="Customize"
+                >
+                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                  Customize
+                </button>
+              </div>
               <input
                 type="text"
                 value={formTitle}
@@ -228,9 +254,12 @@ export function FormBuilder() {
                   }
                 }}
                 placeholder="Form title"
-                className="w-full text-center text-4xl font-bold text-foreground placeholder:text-muted-foreground/30 outline-none bg-transparent"
+                className="w-full text-center text-5xl font-semibold text-foreground placeholder:text-muted-foreground/40 outline-none bg-transparent"
                 aria-label="Form title"
               />
+              <p className="mt-4 text-sm text-muted-foreground/60">
+                Type "/" to insert blocks
+              </p>
             </div>
 
             {/* Blocks */}

@@ -15,6 +15,7 @@ export default function FormsPage() {
   const [forms, setForms] = useState<FormRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isUnauthorized = error?.includes("Unauthorized") ?? false;
 
   const loadForms = () => {
     setIsLoading(true);
@@ -62,7 +63,18 @@ export default function FormsPage() {
         {isLoading ? (
           <div className="mt-8 text-sm text-muted-foreground">Loading...</div>
         ) : error ? (
-          <div className="mt-8 text-sm text-destructive">{error}</div>
+          <div className="mt-8 text-sm text-destructive">
+            {isUnauthorized ? (
+              <span>
+                Please sign in to view your forms.{" "}
+                <a href="/signin" className="underline">
+                  Sign in
+                </a>
+              </span>
+            ) : (
+              error
+            )}
+          </div>
         ) : forms.length === 0 ? (
           <div className="mt-8 text-sm text-muted-foreground">
             No forms yet.

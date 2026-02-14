@@ -26,20 +26,72 @@ type SubmissionResponse = {
   created_at: string;
 };
 
+type TokenResponse = {
+  access_token: string;
+  token_type: string;
+};
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000";
+const TOKEN_KEY = "tally_auth_token";
+
+export function getAuthToken() {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(TOKEN_KEY);
+}
+
+export function setAuthToken(token: string) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function clearAuthToken() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(TOKEN_KEY);
+}
+
+function authHeaders(): HeadersInit {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 async function handleJson<T>(res: Response): Promise<T> {
   if (!res.ok) {
+    if (res.status === 401) {
+      throw new Error("Unauthorized. Please sign in.");
+    }
     const message = await res.text();
     throw new Error(message || "Request failed");
   }
   return res.json() as Promise<T>;
 }
 
+export async function login(username: string, password: string) {
+  const body = new URLSearchParams({ username, password });
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  const data = await handleJson<TokenResponse>(res);
+  setAuthToken(data.access_token);
+  return data;
+}
+
+export async function register(username: string, password: string) {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+  const data = await handleJson<TokenResponse>(res);
+  setAuthToken(data.access_token);
+  return data;
+}
+
 export async function createForm(payload: FormCreatePayload) {
   const res = await fetch(`${API_BASE}/forms`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(payload),
   });
   return handleJson<FormResponse>(res);
@@ -63,18 +115,30 @@ export async function submitForm(
 }
 
 export async function listFormSubmissions(formId: number) {
-  const res = await fetch(`${API_BASE}/forms/${formId}/submissions`);
+  const res = await fetch(`${API_BASE}/forms/${formId}/submissions`, {
+    headers: { ...authHeaders() },
+  });
   return handleJson<SubmissionResponse[]>(res);
 }
 
+export async function getFormById(formId: number) {
+  const res = await fetch(`${API_BASE}/forms/${formId}`, {
+    headers: { ...authHeaders() },
+  });
+  return handleJson<FormResponse>(res);
+}
+
 export async function listForms() {
-  const res = await fetch(`${API_BASE}/forms`);
+  const res = await fetch(`${API_BASE}/forms`, {
+    headers: { ...authHeaders() },
+  });
   return handleJson<FormResponse[]>(res);
 }
 
 export async function deleteForm(formId: number) {
   const res = await fetch(`${API_BASE}/forms/${formId}`, {
     method: "DELETE",
+    headers: { ...authHeaders() },
   });
   if (!res.ok) {
     const message = await res.text();

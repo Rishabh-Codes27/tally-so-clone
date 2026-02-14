@@ -1,3 +1,4 @@
+from .auth import Token, UserCreate, UserOut
 from .form import FormBlock, FormCreate, FormOut, FormUpdate
 from .submission import SubmissionCreate, SubmissionOut
 
@@ -8,4 +9,7 @@ __all__ = [
     "FormUpdate",
     "SubmissionCreate",
     "SubmissionOut",
+    "Token",
+    "UserCreate",
+    "UserOut",
 ]

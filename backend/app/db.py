@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
@@ -24,3 +24,15 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def ensure_forms_user_id_column() -> None:
+    if not DATABASE_URL.startswith("sqlite"):
+        return
+
+    with engine.connect() as connection:
+        result = connection.execute(text("PRAGMA table_info(forms)"))
+        columns = {row[1] for row in result.fetchall()}
+        if "user_id" not in columns:
+            connection.execute(text("ALTER TABLE forms ADD COLUMN user_id INTEGER"))
+            connection.commit()
