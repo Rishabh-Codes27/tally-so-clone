@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .db import Base, SessionLocal, engine, ensure_forms_user_id_column
 from .routers import auth as auth_router
+from .routers import debug as debug_router
 from .routers import forms as forms_router
 from .routers import public as public_router
 from .services import auth_service
@@ -37,3 +38,4 @@ def health() -> dict:
 app.include_router(forms_router.router)
 app.include_router(public_router.router)
 app.include_router(auth_router.router)
+app.include_router(debug_router.router)
