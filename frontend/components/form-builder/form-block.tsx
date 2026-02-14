@@ -59,6 +59,19 @@ export function FormBlockComponent({
     }
   }, [isTextBlock]);
 
+  useEffect(() => {
+    if (!showSlashMenu) return;
+    const handleReposition = () => updateMenuPosition();
+    const ref = isTextBlock ? textInputRef : labelInputRef;
+    const container = ref.current?.closest("[data-scroll-container='true']");
+    container?.addEventListener("scroll", handleReposition, { passive: true });
+    window.addEventListener("resize", handleReposition);
+    return () => {
+      container?.removeEventListener("scroll", handleReposition);
+      window.removeEventListener("resize", handleReposition);
+    };
+  }, [showSlashMenu, updateMenuPosition, isTextBlock]);
+
   const handleInput = useCallback(
     (e: React.FormEvent<HTMLDivElement>) => {
       const text = e.currentTarget.textContent || "";

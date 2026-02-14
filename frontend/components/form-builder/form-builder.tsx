@@ -232,7 +232,7 @@ export function FormBuilder({
         responsesUrl={responsesUrl}
       />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto" data-scroll-container="true">
         {isPreview ? (
           <FormPreview formTitle={formTitle} blocks={blocks} />
         ) : (
