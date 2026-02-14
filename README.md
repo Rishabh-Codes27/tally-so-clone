@@ -21,3 +21,8 @@ A full-stack Tally.so-style form builder with a Next.js frontend and FastAPI bac
 ## Docs
 
 - Swagger/OpenAPI: https://tally-so-test-production.up.railway.app/docs
+
+## Usage
+- A demo user is available.
+- username: test-user, password: test-user
+  
