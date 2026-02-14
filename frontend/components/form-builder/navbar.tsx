@@ -32,8 +32,8 @@ export function Navbar({
   }, []);
 
   return (
-    <header className="flex items-center justify-between h-12 px-4 border-b border-border bg-background">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <header className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 border-b border-border bg-background md:h-12 md:flex-nowrap md:py-0">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
         <svg
           width="18"
           height="18"
@@ -47,11 +47,11 @@ export function Navbar({
           />
         </svg>
         <ChevronRight className="h-3 w-3" />
-        <span className="text-foreground font-medium">
+        <span className="text-foreground font-medium truncate">
           {formTitle || "Untitled"}
         </span>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-1 justify-end">
         {shareUrl ? (
           <button
             onClick={() => {
@@ -77,7 +77,7 @@ export function Navbar({
                   });
                 });
             }}
-            className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+            className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors sm:text-xs"
           >
             Copy link
           </button>
@@ -85,14 +85,14 @@ export function Navbar({
         {responsesUrl ? (
           <a
             href={responsesUrl}
-            className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+            className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors sm:text-xs"
           >
             Responses
           </a>
         ) : null}
         <a
           href="/dashboard"
-          className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+          className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors sm:text-xs"
         >
           Dashboard
         </a>
@@ -121,7 +121,7 @@ export function Navbar({
               setHasToken(false);
               window.location.href = "/";
             }}
-            className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors sm:text-sm"
           >
             Sign out
           </button>
@@ -129,13 +129,13 @@ export function Navbar({
           <div className="flex items-center gap-2">
             <Link
               href="/signin"
-              className="px-3 py-1.5 text-sm font-medium text-foreground hover:text-foreground/80 transition-colors"
+              className="px-3 py-1.5 text-[11px] font-medium text-foreground hover:text-foreground/80 transition-colors sm:text-sm"
             >
               Sign in
             </Link>
             <Link
               href="/signup"
-              className="px-3 py-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              className="px-3 py-1.5 text-[11px] font-medium text-primary hover:text-primary/80 transition-colors sm:text-sm"
             >
               Sign up
             </Link>
@@ -144,14 +144,14 @@ export function Navbar({
         <button
           onClick={onTogglePreview}
           aria-pressed={isPreview}
-          className="px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors"
+          className="px-3 py-1.5 text-[11px] font-medium text-foreground hover:bg-accent rounded-md transition-colors sm:text-sm"
         >
           {isPreview ? "Edit" : "Preview"}
         </button>
         <button
           onClick={onPublish}
           disabled={isPublishing}
-          className="px-4 py-1.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="px-4 py-1.5 text-[11px] font-semibold text-primary-foreground bg-primary hover:bg-primary/90 rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed sm:text-sm"
         >
           {isPublishing ? "Publishing..." : "Publish"}
         </button>

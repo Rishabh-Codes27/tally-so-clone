@@ -9,14 +9,14 @@ const displayFont = Space_Grotesk({
 export default function Page() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      <header className="mx-auto flex max-w-6xl flex-col items-start gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <div className="h-7 w-7 rounded-lg bg-foreground text-background flex items-center justify-center font-semibold">
             T
           </div>
           <span className="text-foreground font-medium">Tally</span>
         </div>
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex flex-wrap items-center gap-4 text-sm">
           <button className="text-muted-foreground hover:text-foreground">
             Product
           </button>

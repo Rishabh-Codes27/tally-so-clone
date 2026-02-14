@@ -83,7 +83,7 @@ export default function AllFormsPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground">All forms</h1>
@@ -126,9 +126,9 @@ export default function AllFormsPage() {
             {forms.map((form) => (
               <div
                 key={form.id}
-                className="rounded-xl border border-border bg-card p-5 hover:shadow-sm hover:border-border/80 transition-all"
+                className="rounded-xl border border-border bg-card p-4 sm:p-5 hover:shadow-sm hover:border-border/80 transition-all"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   {/* Form icon and info */}
                   <div className="flex items-start gap-4 flex-1">
                     <div className="h-12 w-12 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
@@ -142,7 +142,7 @@ export default function AllFormsPage() {
                         Created {new Date(form.created_at).toLocaleDateString()}{" "}
                         at {new Date(form.created_at).toLocaleTimeString()}
                       </p>
-                      <div className="flex items-center gap-4 mt-3">
+                      <div className="flex flex-wrap items-center gap-3 mt-3">
                         <span className="text-xs text-muted-foreground">
                           {form.response_count}{" "}
                           {form.response_count === 1 ? "response" : "responses"}
@@ -155,7 +155,7 @@ export default function AllFormsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                     <Link
                       href={`/responses/${form.id}`}
                       className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"

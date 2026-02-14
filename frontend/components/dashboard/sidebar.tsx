@@ -27,9 +27,9 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-60 border-r border-border bg-background flex flex-col h-screen">
+    <aside className="w-full border-b border-border bg-background flex flex-col md:w-60 md:border-b-0 md:border-r md:h-screen">
       {/* Logo */}
-      <div className="h-14 px-6 flex items-center gap-2 border-b border-border">
+      <div className="h-12 px-4 flex items-center gap-2 border-b border-border md:h-14 md:px-6">
         <div className="h-7 w-7 rounded-lg bg-foreground text-background flex items-center justify-center font-semibold text-sm">
           T
         </div>
@@ -37,7 +37,7 @@ export function Sidebar() {
       </div>
 
       {/* Create new form button */}
-      <div className="p-4">
+      <div className="p-3 md:p-4">
         <Link
           href="/builder"
           className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg transition-colors"
@@ -48,7 +48,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-2">
+      <nav className="flex-1 px-3 py-2 flex flex-row gap-1 overflow-x-auto md:flex-col md:gap-0">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
@@ -56,7 +56,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`shrink-0 flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 isActive
                   ? "bg-accent text-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
@@ -72,7 +72,7 @@ export function Sidebar() {
       {/* User section */}
       <div className="border-t border-border p-3">
         {username && (
-          <div className="px-3 py-2 mb-2">
+          <div className="px-3 py-2 mb-2 hidden md:block">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <User className="h-4 w-4 text-primary" />
