@@ -17,9 +17,13 @@ export function PublicFormFields({
   return (
     <div className="flex flex-col gap-6">
       {blocks.map((block) => {
-        if (block.type === "text") return null;
-
         switch (block.type) {
+          case "text":
+            return block.content?.trim() ? (
+              <p key={block.id} className="text-base leading-relaxed">
+                {block.content}
+              </p>
+            ) : null;
           case "heading1":
             return (
               <h2 key={block.id} className="text-3xl font-bold">

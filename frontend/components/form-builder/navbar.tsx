@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Zap, Clock, Settings, ChevronRight, Ban } from "lucide-react";
+import {
+  Zap,
+  Clock,
+  Settings,
+  ChevronRight,
+  Ban,
+  FileText,
+} from "lucide-react";
 import { clearAuthToken, getAuthToken } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 
@@ -34,18 +41,15 @@ export function Navbar({
   return (
     <header className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 border-b border-border bg-background md:h-12 md:flex-nowrap md:py-0">
       <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          className="text-foreground"
+        <Link
+          href={hasToken ? "/dashboard" : "/"}
+          aria-label={hasToken ? "Go to dashboard" : "Go to home"}
+          className={`inline-flex items-center justify-center rounded-md p-1 transition-colors ${
+            hasToken ? "text-foreground" : "text-foreground hover:text-blue-600"
+          }`}
         >
-          <path
-            d="M12 2L14.09 8.26L20 9.27L15.55 13.97L16.91 20L12 16.9L7.09 20L8.45 13.97L4 9.27L9.91 8.26L12 2Z"
-            fill="currentColor"
-          />
-        </svg>
+          <FileText className="h-4 w-4" />
+        </Link>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground font-medium truncate">
           {formTitle || "Untitled"}

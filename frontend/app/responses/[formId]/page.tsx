@@ -54,7 +54,15 @@ export default function ResponsesPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="text-3xl font-bold text-foreground">Responses</h1>
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-3xl font-bold text-foreground">Responses</h1>
+          <a
+            href="/dashboard"
+            className="text-sm font-medium text-primary hover:text-primary/80"
+          >
+            Back to dashboard
+          </a>
+        </div>
         <p className="text-sm text-muted-foreground mt-2">
           {formTitle ? formTitle : "Form"}
         </p>

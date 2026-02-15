@@ -273,6 +273,12 @@ export function FormBuilder({
                   if (e.key === "Enter" && blocks.length > 0) {
                     e.preventDefault();
                     setActiveBlockId(blocks[0].id);
+                    setTimeout(() => {
+                      const target = document.querySelector(
+                        `[data-block-id="${blocks[0].id}"] [contenteditable="true"]`,
+                      ) as HTMLElement | null;
+                      target?.focus();
+                    }, 0);
                   }
                 }}
                 placeholder="Form title"

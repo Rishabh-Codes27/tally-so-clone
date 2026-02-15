@@ -54,10 +54,14 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
       </div>
       <div className="flex flex-col gap-6">
         {blocks.map((block) => {
-          if (block.type === "text") return null;
-
           const content = (() => {
             switch (block.type) {
+              case "text":
+                return (
+                  <p className="text-base text-foreground leading-relaxed">
+                    {block.content?.trim()}
+                  </p>
+                );
               case "heading1":
                 return (
                   <h2 className="text-3xl font-bold text-foreground">

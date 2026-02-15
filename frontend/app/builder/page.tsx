@@ -97,11 +97,7 @@ export default function BuilderPage() {
           <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary">
             /
           </span>{" "}
-          to insert form blocks and{" "}
-          <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary">
-            @
-          </span>{" "}
-          to mention question answers.
+          to insert form blocks.
         </p>
         <div className="mt-10 grid w-full max-w-2xl grid-cols-1 gap-8 text-left md:grid-cols-2">
           <div>
@@ -112,7 +108,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 onClick={() => setStarted(true)}
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+                className="group inline-flex items-center gap-2 text-foreground hover:text-blue-600 transition-colors"
               >
                 <Sparkles className="h-4 w-4" />
                 Create your first form
@@ -120,7 +116,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
               >
                 <LayoutTemplate className="h-4 w-4" />
                 Get started with templates
@@ -131,7 +127,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
               >
                 <Share2 className="h-4 w-4" />
                 Embed your form
@@ -142,7 +138,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
               >
                 <BookOpen className="h-4 w-4" />
                 Help center
@@ -153,7 +149,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
               >
                 <Wand2 className="h-4 w-4" />
                 Learn about Tally Pro
@@ -171,7 +167,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
               >
                 <Sparkles className="h-4 w-4" />
                 Conditional logic
@@ -182,7 +178,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
               >
                 <Calculator className="h-4 w-4" />
                 Calculator
@@ -193,7 +189,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
               >
                 <EyeOff className="h-4 w-4" />
                 Hidden fields
@@ -204,7 +200,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
               >
                 <AtSign className="h-4 w-4" />
                 Mentions
@@ -215,7 +211,7 @@ export default function BuilderPage() {
               <button
                 type="button"
                 aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
               >
                 <DollarSign className="h-4 w-4" />
                 Collect payments

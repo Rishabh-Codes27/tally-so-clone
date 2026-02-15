@@ -828,6 +828,7 @@ export function FormBlockComponent({
 
   return (
     <div
+      data-block-id={block.id}
       className={`group relative flex items-start gap-3 py-2 rounded-md transition-all ${
         isDragOver ? "bg-accent/50 border-t-2 border-primary" : ""
       }`}
