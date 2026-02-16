@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getFormByShareId, submitForm } from "@/lib/api";
 import type { AnswerMap, FormResponse, PublicFormState } from "./types";
 import { PublicFormFields } from "./public-form-fields";
+import { validateAnswers } from "@/lib/form-validation";
 
 interface PublicFormProps {
   shareId: string;
@@ -18,6 +19,14 @@ export function PublicForm({ shareId }: PublicFormProps) {
     submitSuccess: false,
   });
   const [answers, setAnswers] = useState<AnswerMap>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const getCountryFromLocale = () => {
+    if (typeof navigator === "undefined") return "";
+    const locale = navigator.language || "";
+    const parts = locale.split("-");
+    return parts.length > 1 ? parts[1].toUpperCase() : "";
+  };
 
   useEffect(() => {
     if (!shareId) return;
@@ -50,12 +59,48 @@ export function PublicForm({ shareId }: PublicFormProps) {
     };
   }, [shareId]);
 
+  useEffect(() => {
+    const form = state.form;
+    if (!form) return;
+    const params =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search)
+        : null;
+
+    setAnswers((prev) => {
+      const next = { ...prev };
+      for (const block of form.blocks) {
+        if (block.type === "hidden-field") {
+          const key = block.content?.trim() || block.id;
+          if (params && params.has(key)) {
+            next[block.id] = params.get(key) || "";
+          }
+        }
+        if (block.type === "respondent-country" && !next[block.id]) {
+          next[block.id] = getCountryFromLocale();
+        }
+      }
+      return next;
+    });
+  }, [state.form]);
+
   const handleChange = (blockId: string, value: unknown) => {
     setAnswers((prev) => ({ ...prev, [blockId]: value }));
+    setErrors((prev) => {
+      if (!prev[blockId]) return prev;
+      const next = { ...prev };
+      delete next[blockId];
+      return next;
+    });
   };
 
   const handleSubmit = async () => {
     if (!state.form) return;
+    const validation = validateAnswers(state.form.blocks, answers);
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
     setState((prev) => ({ ...prev, isSubmitting: true }));
     try {
       await submitForm(state.form.share_id, { data: answers });
@@ -97,6 +142,10 @@ export function PublicForm({ shareId }: PublicFormProps) {
     );
   }
 
+  const thankYouBlock = state.form.blocks.find(
+    (block) => block.type === "thank-you-page",
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-6 py-16">
@@ -110,6 +159,7 @@ export function PublicForm({ shareId }: PublicFormProps) {
           blocks={state.form.blocks}
           answers={answers}
           onChange={handleChange}
+          errors={errors}
         />
 
         <div className="mt-10 flex justify-start">
@@ -124,8 +174,13 @@ export function PublicForm({ shareId }: PublicFormProps) {
         </div>
 
         {state.submitSuccess ? (
-          <div className="mt-4 text-sm text-emerald-600">
-            Thanks! Your response has been recorded.
+          <div className="mt-6 rounded-md border border-border/50 bg-muted/30 px-4 py-3 text-sm text-foreground">
+            <div className="font-semibold">
+              {thankYouBlock?.content || "Thanks!"}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Your response has been recorded.
+            </div>
           </div>
         ) : null}
       </div>

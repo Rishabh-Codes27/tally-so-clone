@@ -27,7 +27,17 @@ import {
   Type,
   Image,
   Scissors,
-} from "lucide-react"
+  Tag,
+  Video,
+  Volume2,
+  Code,
+  GitBranch,
+  Sigma,
+  EyeOff,
+  ShieldCheck,
+  Globe2,
+  Smile,
+} from "lucide-react";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   "short-answer": AlignLeft,
@@ -51,23 +61,35 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   ranking: ListOrdered,
   "wallet-connect": Wallet,
   "new-page": FileText,
+  "thank-you-page": Smile,
   divider: Minus,
   heading1: Heading1,
   heading2: Heading2,
   heading3: Heading3,
   paragraph: Type,
+  text: Type,
+  title: Heading1,
+  label: Tag,
   image: Image,
+  video: Video,
+  audio: Volume2,
+  embed: Code,
   "page-break": Scissors,
-}
+  "conditional-logic": GitBranch,
+  "calculated-field": Sigma,
+  "hidden-field": EyeOff,
+  recaptcha: ShieldCheck,
+  "respondent-country": Globe2,
+};
 
 export function BlockIcon({
   icon,
   className = "h-4 w-4",
 }: {
-  icon: string
-  className?: string
+  icon: string;
+  className?: string;
 }) {
-  const IconComponent = iconMap[icon]
-  if (!IconComponent) return null
-  return <IconComponent className={className} />
+  const IconComponent = iconMap[icon];
+  if (!IconComponent) return null;
+  return <IconComponent className={className} />;
 }

@@ -2,7 +2,13 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..schemas import FormOut, SubmissionCreate, SubmissionOut
+from ..schemas import (
+    FormOut,
+    PaymentSessionCreate,
+    PaymentSessionOut,
+    SubmissionCreate,
+    SubmissionOut,
+)
 from ..services import form_service, submission_service
 
 router = APIRouter(tags=["public"])
@@ -25,3 +31,15 @@ def submit_form(
     db: Session = Depends(get_db),
 ) -> SubmissionOut:
     return submission_service.create_submission_for_share(db, share_id, payload)
+
+
+# PAYMENT FEATURE DISABLED - Endpoint commented out
+# @router.post("/s/{share_id}/payment-session", response_model=PaymentSessionOut)
+# def create_payment_session(
+#     share_id: str,
+#     payload: PaymentSessionCreate,
+#     db: Session = Depends(get_db),
+# ) -> PaymentSessionOut:
+#     return submission_service.create_payment_session_for_share(
+#         db, share_id, payload.block_id
+#     )

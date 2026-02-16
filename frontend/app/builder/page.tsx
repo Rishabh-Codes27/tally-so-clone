@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { FormBuilder } from "@/components/form-builder/form-builder";
 import { Navbar } from "@/components/form-builder/navbar";
 import { Space_Grotesk } from "next/font/google";
@@ -16,7 +17,9 @@ import {
   EyeOff,
   AtSign,
   DollarSign,
+  ArrowLeft,
 } from "lucide-react";
+import { TEMPLATES } from "@/lib/templates";
 
 const displayFont = Space_Grotesk({
   subsets: ["latin"],
@@ -24,11 +27,15 @@ const displayFont = Space_Grotesk({
 });
 
 export default function BuilderPage() {
+  const searchParams = useSearchParams();
+  const viewParam = searchParams.get("view");
   const [started, setStarted] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(viewParam === "templates");
+  const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
 
   useEffect(() => {
-    if (started) return;
+    if (started || showTemplates) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -37,10 +44,72 @@ export default function BuilderPage() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [started]);
+  }, [started, showTemplates]);
+
+  if (selectedTemplate !== null) {
+    const template = TEMPLATES[selectedTemplate];
+    return (
+      <FormBuilder
+        initialTitle={template.title}
+        initialBlocks={template.blocks}
+        autoFocusFirstBlock={true}
+      />
+    );
+  }
 
   if (started) {
     return <FormBuilder initialTitle={draftTitle} autoFocusFirstBlock={true} />;
+  }
+
+  if (showTemplates) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar
+          formTitle="Choose a template"
+          isPreview={false}
+          onTogglePreview={() => undefined}
+          onPublish={() => undefined}
+          isPublishing={false}
+          shareUrl={null}
+          responsesUrl={null}
+        />
+        <main className="mx-auto flex max-w-6xl flex-col px-6 pt-12">
+          <button
+            onClick={() => setShowTemplates(false)}
+            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Choose a template
+          </h1>
+          <p className="text-sm text-muted-foreground mb-8">
+            Start with a pre-built template and customize it for your needs.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {TEMPLATES.map((template, index) => (
+              <button
+                key={template.id}
+                onClick={() => setSelectedTemplate(index)}
+                className="group rounded-lg border border-border bg-card p-6 hover:border-primary hover:bg-accent transition-all text-left"
+              >
+                <div className="text-3xl mb-4">{template.icon}</div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  {template.title}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {template.description}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {template.blocks.length} questions
+                </p>
+              </button>
+            ))}
+          </div>
+        </main>
+      </div>
+    );
   }
 
   const noop = () => undefined;
@@ -83,7 +152,10 @@ export default function BuilderPage() {
             <CornerDownLeft className="h-4 w-4" />
             Press Enter to start from scratch
           </button>
-          <button className="flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-muted-foreground/80 hover:bg-accent">
+          <button
+            onClick={() => setShowTemplates(true)}
+            className="flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 hover:bg-accent"
+          >
             <LayoutTemplate className="h-4 w-4" />
             Use a template
           </button>
@@ -115,14 +187,11 @@ export default function BuilderPage() {
               </button>
               <button
                 type="button"
-                aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
+                onClick={() => setShowTemplates(true)}
+                className="group inline-flex items-center gap-2 text-foreground hover:text-blue-600 transition-colors"
               >
                 <LayoutTemplate className="h-4 w-4" />
                 Get started with templates
-                <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                  <Ban className="h-3.5 w-3.5 text-destructive" />
-                </span>
               </button>
               <button
                 type="button"

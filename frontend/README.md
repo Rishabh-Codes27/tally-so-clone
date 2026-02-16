@@ -94,10 +94,69 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Block Types
 
+#### ✅ Fully Working (26+ components)
+
+**Text Input Fields (8)**
+
+- Short answer, Long answer - Single/multi-line text with validation
+- Email, Number, Phone, URL - Regex pattern validation
+- Date, Time - Format validation (YYYY-MM-DD, HH:MM)
+
+**Choice Fields (4)**
+
+- Multiple Choice, Checkboxes, Dropdown, Multi-select - Options with selection logic
+
+**Scale & Matrix (3)**
+
+- Linear Scale, Matrix, Rating - Numeric selection with min/max bounds
+
+**File & Signature (2)**
+
+- File Upload - Drag-and-drop, 0.5MB size limit, stored as base64
+- Signature - Canvas drawing, stored as base64 image
+
+**Ranking (1)**
+
+- Ranking - Drag-to-reorder, unique value validation
+
+**Display & Layout (8)**
+
+- Text, Title, Label - Text content display
+- Heading 1/2/3, Paragraph - Semantic text formatting
+- Divider, Page Break, New Page - Layout separators
+
+**Media (4)**
+
+- Image, Video, Audio, Embed - URL-based media embedding
+
+**Smart Fields (2)**
+
+- Respondent Country - Auto-filled dropdown with geolocation
+- Thank-you Page - Rendered after form submission
+
+**Form Features**
+
+- File upload with drag-and-drop UI (Google Forms style)
+- Client-side and server-side validation for all fields
+- Response collection with CSV/JSON export
+- Per-response file downloads
+- Respondent country auto-fill
+
+#### 🟡 UI-Only / Partially Working
+
+- **Payment** - UI placeholder, coming soon (Stripe disabled)
+- **Wallet Connect** - UI placeholder, coming soon
+- **Conditional Logic** - UI visible but no routing logic implemented
+- **Calculated Fields** - UI visible but no calculation logic implemented
+- **reCAPTCHA** - Simple checkbox mock (not real Google reCAPTCHA)
+
+#### Features
+
 - **Input Fields**: Text, Email, Phone, URL, Number, Date, Time
 - **Choices**: Multiple Choice, Checkboxes, Dropdown, Multi-select, Ranking
-- **Advanced**: File Upload, Matrix, Signature, Rating, Linear Scale, Opinion Scale
-- **Integrations**: Payment, Calendly
+- **Advanced**: File Upload, Matrix, Signature, Rating, Linear Scale
+- **Media**: Image, Video, Audio, Embed
+- **Display**: Text, Title, Label, Heading, Paragraph, Divider
 
 ### UI Features
 

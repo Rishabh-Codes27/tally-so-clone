@@ -2,6 +2,8 @@ import type { FormBlock } from "@/components/form-builder/types";
 
 const fallbackLabels: Record<FormBlock["type"], string> = {
   text: "",
+  title: "Title",
+  label: "Label",
   heading1: "Heading 1",
   heading2: "Heading 2",
   heading3: "Heading 3",
@@ -28,8 +30,17 @@ const fallbackLabels: Record<FormBlock["type"], string> = {
   "file-upload": "File upload",
   divider: "",
   image: "Image",
+  video: "Video",
+  audio: "Audio",
+  embed: "Embed",
   "page-break": "",
   "new-page": "",
+  "thank-you-page": "Thank you",
+  "conditional-logic": "Conditional logic",
+  "calculated-field": "Calculated field",
+  "hidden-field": "Hidden field",
+  recaptcha: "reCAPTCHA",
+  "respondent-country": "Respondent's country",
 };
 
 function getLabel(block: FormBlock) {

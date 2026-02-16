@@ -11,6 +11,12 @@ type SubmissionRow = {
   created_at: string;
 };
 
+type FileAnswer = {
+  name?: string;
+  type?: string;
+  data?: string;
+};
+
 export default function ResponsesPage() {
   const params = useParams<{ formId: string }>();
   const formId = Number(params?.formId);
@@ -51,6 +57,74 @@ export default function ResponsesPage() {
     return JSON.stringify(value);
   };
 
+  const isFileAnswer = (value: unknown): value is FileAnswer => {
+    if (!value || typeof value !== "object" || Array.isArray(value))
+      return false;
+    const record = value as FileAnswer;
+    return Boolean(record.name && record.data);
+  };
+
+  const downloadDataUrl = async (dataUrl: string, filename: string) => {
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadFilesForResponse = async (row: SubmissionRow) => {
+    const entries = Object.entries(row.data);
+    for (const [key, value] of entries) {
+      if (!isFileAnswer(value)) continue;
+      const safeName = value.name || `${key}.bin`;
+      await downloadDataUrl(value.data ?? "", safeName);
+    }
+  };
+
+  const buildCsv = () => {
+    const headers = ["Response ID", "Created At", ...Object.keys(questionMap)];
+    const rowsCsv = rows.map((row) => {
+      const base = [row.id, row.created_at];
+      const values = Object.keys(questionMap).map((key) =>
+        JSON.stringify(formatValue(row.data[key])),
+      );
+      return [...base, ...values].join(",");
+    });
+    return [headers.join(","), ...rowsCsv].join("\n");
+  };
+
+  const downloadCsv = () => {
+    const csv = buildCsv();
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${formTitle || "form"}-responses.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadJson = () => {
+    const blob = new Blob([JSON.stringify(rows, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${formTitle || "form"}-responses.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-6 py-16">
@@ -66,6 +140,22 @@ export default function ResponsesPage() {
         <p className="text-sm text-muted-foreground mt-2">
           {formTitle ? formTitle : "Form"}
         </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={downloadCsv}
+            className="px-3 py-1.5 rounded-md border border-border text-sm"
+          >
+            Download CSV
+          </button>
+          <button
+            type="button"
+            onClick={downloadJson}
+            className="px-3 py-1.5 rounded-md border border-border text-sm"
+          >
+            Download JSON
+          </button>
+        </div>
 
         {isLoading ? (
           <div className="mt-8 text-sm text-muted-foreground">Loading...</div>
@@ -97,6 +187,15 @@ export default function ResponsesPage() {
                   <span>Response #{row.id}</span>
                   <span>{row.created_at}</span>
                 </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => downloadFilesForResponse(row)}
+                    className="px-3 py-1.5 rounded-md border border-border text-xs"
+                  >
+                    Download files
+                  </button>
+                </div>
                 <div className="mt-4 space-y-2 text-sm">
                   {Object.entries(row.data).map(([key, value]) => (
                     <div key={key} className="flex flex-col gap-1">
@@ -104,7 +203,7 @@ export default function ResponsesPage() {
                         {questionMap[key] ?? key}
                       </span>
                       <span className="text-foreground">
-                        {formatValue(value)}
+                        {isFileAnswer(value) ? value.name : formatValue(value)}
                       </span>
                     </div>
                   ))}

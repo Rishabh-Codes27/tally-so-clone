@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileText, Plus } from "lucide-react";
+import { FileText, Plus, LayoutTemplate } from "lucide-react";
 
 interface QuickAction {
   href: string;
@@ -20,6 +20,14 @@ const quickActions: QuickAction[] = [
     iconColor: "text-primary",
   },
   {
+    href: "/builder?view=templates",
+    icon: LayoutTemplate,
+    title: "Use a template",
+    description: "Start with a template",
+    iconBgColor: "bg-purple-50",
+    iconColor: "text-purple-600",
+  },
+  {
     href: "/dashboard/forms",
     icon: FileText,
     title: "View all forms",
@@ -35,7 +43,7 @@ export function QuickActions() {
       <h2 className="text-lg font-semibold text-foreground mb-4">
         Quick actions
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {quickActions.map((action) => {
           const Icon = action.icon;
           return (

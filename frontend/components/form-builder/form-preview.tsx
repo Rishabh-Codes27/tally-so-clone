@@ -9,6 +9,8 @@ interface FormPreviewProps {
 
 const fallbackLabels: Record<FormBlock["type"], string> = {
   text: "",
+  title: "Title",
+  label: "Label",
   heading1: "Heading 1",
   heading2: "Heading 2",
   heading3: "Heading 3",
@@ -35,8 +37,17 @@ const fallbackLabels: Record<FormBlock["type"], string> = {
   "file-upload": "File upload",
   divider: "",
   image: "Image",
+  video: "Video",
+  audio: "Audio",
+  embed: "Embed",
   "page-break": "",
   "new-page": "",
+  "thank-you-page": "Thank you",
+  "conditional-logic": "Conditional logic",
+  "calculated-field": "Calculated field",
+  "hidden-field": "Hidden field",
+  recaptcha: "reCAPTCHA",
+  "respondent-country": "Respondent's country",
 };
 
 function getLabel(block: FormBlock) {
@@ -79,6 +90,18 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                   <h4 className="text-xl font-semibold text-foreground">
                     {getLabel(block)}
                   </h4>
+                );
+              case "title":
+                return (
+                  <h3 className="text-2xl font-semibold text-foreground">
+                    {getLabel(block)}
+                  </h3>
+                );
+              case "label":
+                return (
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    {getLabel(block)}
+                  </p>
                 );
               case "paragraph":
                 return (
@@ -274,7 +297,13 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                       {getLabel(block)}
                     </legend>
                     <div className="flex items-center gap-4">
-                      {[1, 2, 3, 4, 5].map((n) => (
+                      {Array.from(
+                        {
+                          length:
+                            (block.scaleMax ?? 5) - (block.scaleMin ?? 1) + 1,
+                        },
+                        (_, i) => (block.scaleMin ?? 1) + i,
+                      ).map((n) => (
                         <label
                           key={n}
                           className="flex items-center gap-2 text-sm text-foreground"
@@ -338,7 +367,10 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                       {getLabel(block)}
                     </legend>
                     <div className="flex items-center gap-3">
-                      {[1, 2, 3, 4, 5].map((n) => (
+                      {Array.from(
+                        { length: block.ratingMax ?? 5 },
+                        (_, i) => i + 1,
+                      ).map((n) => (
                         <label
                           key={n}
                           className="flex items-center gap-2 text-sm text-foreground"
@@ -362,9 +394,14 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     </label>
                     <input
                       type="text"
-                      placeholder="Card number"
+                      placeholder={`Amount ${block.paymentCurrency ?? "USD"}`}
                       className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
                     />
+                    <div className="text-xs text-muted-foreground">
+                      {block.paymentDescription ?? "Payment"} ·{" "}
+                      {block.paymentAmount ?? 0}{" "}
+                      {block.paymentCurrency ?? "USD"}
+                    </div>
                   </div>
                 );
               case "signature":
@@ -427,6 +464,82 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                       {getLabel(block)}
                     </label>
                     <input type="file" className="text-sm text-foreground" />
+                    <div className="text-xs text-muted-foreground">
+                      Max {block.fileMaxSizeMb ?? 2}MB
+                    </div>
+                  </div>
+                );
+              case "video":
+                return (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-foreground">
+                      {getLabel(block)}
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://"
+                      className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
+                    />
+                  </div>
+                );
+              case "audio":
+                return (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-foreground">
+                      {getLabel(block)}
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://"
+                      className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
+                    />
+                  </div>
+                );
+              case "embed":
+                return (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-foreground">
+                      {getLabel(block)}
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://"
+                      className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
+                    />
+                  </div>
+                );
+              case "thank-you-page":
+                return (
+                  <div className="rounded-md border border-border/40 px-4 py-3">
+                    <div className="text-sm font-semibold text-foreground">
+                      {getLabel(block)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Thank you message after submission.
+                    </div>
+                  </div>
+                );
+              case "conditional-logic":
+              case "calculated-field":
+              case "hidden-field":
+              case "recaptcha":
+                return (
+                  <div className="text-sm text-muted-foreground">
+                    {getLabel(block)}
+                  </div>
+                );
+              case "respondent-country":
+                return (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-foreground">
+                      {getLabel(block)}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Auto-detected"
+                      disabled
+                      className="border border-border rounded-md px-3 py-2 text-sm text-muted-foreground bg-transparent outline-none"
+                    />
                   </div>
                 );
               case "image":
@@ -463,14 +576,25 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
           if (!content) return null;
 
           const showFieldShell = ![
+            "text",
+            "title",
+            "label",
             "heading1",
             "heading2",
             "heading3",
             "paragraph",
             "divider",
             "image",
+            "video",
+            "audio",
+            "embed",
             "page-break",
             "new-page",
+            "thank-you-page",
+            "conditional-logic",
+            "calculated-field",
+            "hidden-field",
+            "recaptcha",
           ].includes(block.type);
 
           if (showFieldShell) {

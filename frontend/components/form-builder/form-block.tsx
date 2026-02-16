@@ -201,15 +201,191 @@ export function FormBlockComponent({
 
   const showFieldShell = ![
     "text",
+    "title",
+    "label",
     "heading1",
     "heading2",
     "heading3",
     "paragraph",
     "divider",
     "image",
+    "video",
+    "audio",
+    "embed",
     "page-break",
     "new-page",
+    "thank-you-page",
+    "conditional-logic",
+    "calculated-field",
+    "hidden-field",
+    "recaptcha",
   ].includes(block.type);
+
+  const renderRequiredToggle = () => (
+    <label className="mt-2 inline-flex items-center gap-2 text-xs text-muted-foreground">
+      <input
+        type="checkbox"
+        checked={block.required ?? false}
+        onChange={(e) => onUpdate({ ...block, required: e.target.checked })}
+        className="h-3.5 w-3.5"
+      />
+      Required
+    </label>
+  );
+
+  const renderScaleSettings = () => (
+    <div className="mt-3 flex flex-wrap items-end gap-3 text-xs text-muted-foreground">
+      <label className="flex flex-col gap-1">
+        <span>Min</span>
+        <input
+          type="number"
+          value={block.scaleMin ?? 1}
+          onChange={(e) =>
+            onUpdate({
+              ...block,
+              scaleMin: Number(e.target.value || 1),
+            })
+          }
+          className="border border-border/60 rounded-md px-2 py-1 w-20 bg-transparent text-foreground"
+        />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span>Max</span>
+        <input
+          type="number"
+          value={block.scaleMax ?? 5}
+          onChange={(e) =>
+            onUpdate({
+              ...block,
+              scaleMax: Number(e.target.value || 5),
+            })
+          }
+          className="border border-border/60 rounded-md px-2 py-1 w-20 bg-transparent text-foreground"
+        />
+      </label>
+    </div>
+  );
+
+  const renderRatingSettings = () => (
+    <div className="mt-3 flex items-end gap-3 text-xs text-muted-foreground">
+      <label className="flex flex-col gap-1">
+        <span>Max rating</span>
+        <input
+          type="number"
+          min={1}
+          value={block.ratingMax ?? 5}
+          onChange={(e) =>
+            onUpdate({
+              ...block,
+              ratingMax: Number(e.target.value || 5),
+            })
+          }
+          className="border border-border/60 rounded-md px-2 py-1 w-24 bg-transparent text-foreground"
+        />
+      </label>
+    </div>
+  );
+
+  const renderFileSettings = () => (
+    <div className="mt-3 flex flex-col gap-2 text-xs text-muted-foreground">
+      <label className="flex flex-col gap-1">
+        <span>Max size (MB)</span>
+        <input
+          type="number"
+          min={0.1}
+          step={0.1}
+          value={block.fileMaxSizeMb ?? 2}
+          onChange={(e) =>
+            onUpdate({
+              ...block,
+              fileMaxSizeMb: Number(e.target.value || 2),
+            })
+          }
+          className="border border-border/60 rounded-md px-2 py-1 w-28 bg-transparent text-foreground"
+        />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span>Allowed types (comma-separated)</span>
+        <input
+          type="text"
+          value={(block.fileAllowedTypes || []).join(", ")}
+          onChange={(e) =>
+            onUpdate({
+              ...block,
+              fileAllowedTypes: e.target.value
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean),
+            })
+          }
+          placeholder="image/png, application/pdf"
+          className="border border-border/60 rounded-md px-2 py-1 bg-transparent text-foreground"
+        />
+      </label>
+    </div>
+  );
+
+  const renderPaymentSettings = () => (
+    <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-muted-foreground">
+      <label className="flex flex-col gap-1">
+        <span>Amount</span>
+        <input
+          type="number"
+          min={0}
+          step={0.01}
+          value={block.paymentAmount ?? 10}
+          onChange={(e) =>
+            onUpdate({
+              ...block,
+              paymentAmount: Number(e.target.value || 0),
+            })
+          }
+          className="border border-border/60 rounded-md px-2 py-1 bg-transparent text-foreground"
+        />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span>Currency</span>
+        <input
+          type="text"
+          value={block.paymentCurrency ?? "USD"}
+          onChange={(e) =>
+            onUpdate({
+              ...block,
+              paymentCurrency: e.target.value.toUpperCase(),
+            })
+          }
+          className="border border-border/60 rounded-md px-2 py-1 bg-transparent text-foreground"
+        />
+      </label>
+      <label className="flex flex-col gap-1 sm:col-span-3">
+        <span>Description</span>
+        <input
+          type="text"
+          value={block.paymentDescription ?? "Payment"}
+          onChange={(e) =>
+            onUpdate({
+              ...block,
+              paymentDescription: e.target.value,
+            })
+          }
+          className="border border-border/60 rounded-md px-2 py-1 bg-transparent text-foreground"
+        />
+      </label>
+    </div>
+  );
+
+  const renderUrlSetting = (label: string) => (
+    <label className="mt-3 flex flex-col gap-1 text-xs text-muted-foreground">
+      <span>{label}</span>
+      <input
+        type="text"
+        value={block.content}
+        onChange={(e) => onUpdate({ ...block, content: e.target.value })}
+        placeholder="https://"
+        className="border border-border/60 rounded-md px-2 py-1 bg-transparent text-foreground"
+      />
+    </label>
+  );
 
   const renderEditableLabel = (
     placeholder: string,
@@ -270,6 +446,26 @@ export function FormBlockComponent({
             )}
           </div>
         );
+      case "title":
+        return (
+          <div className="w-full">
+            {renderEditableLabel(
+              "Title",
+              "Title",
+              "text-2xl font-semibold text-foreground outline-none w-full block empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30",
+            )}
+          </div>
+        );
+      case "label":
+        return (
+          <div className="w-full">
+            {renderEditableLabel(
+              "Label",
+              "Label",
+              "text-xs uppercase tracking-wider text-muted-foreground outline-none w-full block empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/40",
+            )}
+          </div>
+        );
       case "paragraph":
         return (
           <div className="w-full">
@@ -287,6 +483,7 @@ export function FormBlockComponent({
             <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
               Short answer text
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "long-answer":
@@ -296,6 +493,7 @@ export function FormBlockComponent({
             <div className="border border-border/60 rounded-md p-3 h-20 text-sm text-muted-foreground/80 pointer-events-none">
               Long answer text
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "email":
@@ -305,6 +503,7 @@ export function FormBlockComponent({
             <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none flex items-center gap-2 max-w-sm">
               <span>@</span> name@example.com
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "number":
@@ -314,6 +513,7 @@ export function FormBlockComponent({
             <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
               0
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "url":
@@ -323,6 +523,7 @@ export function FormBlockComponent({
             <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
               https://
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "phone":
@@ -332,6 +533,7 @@ export function FormBlockComponent({
             <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
               +1 (555) 000-0000
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "date":
@@ -341,6 +543,7 @@ export function FormBlockComponent({
             <div className="border border-border/60 rounded-md px-3 py-2 text-sm text-muted-foreground/80 pointer-events-none inline-flex items-center gap-2">
               MM / DD / YYYY
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "time":
@@ -396,6 +599,7 @@ export function FormBlockComponent({
                 className="border border-border/60 rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
               />
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "multiple-choice":
@@ -435,6 +639,7 @@ export function FormBlockComponent({
                 Add option
               </button>
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "checkboxes":
@@ -474,6 +679,7 @@ export function FormBlockComponent({
                 Add option
               </button>
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "dropdown":
@@ -515,6 +721,7 @@ export function FormBlockComponent({
                 Add option
               </button>
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "multi-select":
@@ -570,6 +777,7 @@ export function FormBlockComponent({
                 Add option
               </button>
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "linear-scale":
@@ -581,7 +789,10 @@ export function FormBlockComponent({
               labelBaseClass.replace("mb-2", "mb-3"),
             )}
             <div className="flex items-center gap-2">
-              {[1, 2, 3, 4, 5].map((n) => (
+              {Array.from(
+                { length: (block.scaleMax ?? 5) - (block.scaleMin ?? 1) + 1 },
+                (_, index) => (block.scaleMin ?? 1) + index,
+              ).map((n) => (
                 <div
                   key={n}
                   className="w-10 h-10 rounded-full border-2 border-border flex items-center justify-center text-sm text-muted-foreground"
@@ -590,6 +801,8 @@ export function FormBlockComponent({
                 </div>
               ))}
             </div>
+            {renderScaleSettings()}
+            {renderRequiredToggle()}
           </div>
         );
       case "matrix":
@@ -640,6 +853,7 @@ export function FormBlockComponent({
                 </tbody>
               </table>
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "rating":
@@ -651,10 +865,15 @@ export function FormBlockComponent({
               labelBaseClass.replace("mb-2", "mb-3"),
             )}
             <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((n) => (
+              {Array.from(
+                { length: block.ratingMax ?? 5 },
+                (_, i) => i + 1,
+              ).map((n) => (
                 <Star key={n} className="h-6 w-6 text-muted-foreground/30" />
               ))}
             </div>
+            {renderRatingSettings()}
+            {renderRequiredToggle()}
           </div>
         );
       case "payment":
@@ -665,6 +884,8 @@ export function FormBlockComponent({
               <CreditCard className="h-5 w-5" />
               <span className="text-sm">Payment collection field</span>
             </div>
+            {renderPaymentSettings()}
+            {renderRequiredToggle()}
           </div>
         );
       case "signature":
@@ -686,6 +907,7 @@ export function FormBlockComponent({
               </svg>
               <span className="text-sm mt-2">Draw signature here</span>
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "ranking":
@@ -731,6 +953,7 @@ export function FormBlockComponent({
                 Add item
               </button>
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "wallet-connect":
@@ -741,6 +964,7 @@ export function FormBlockComponent({
               <Wallet className="h-5 w-5" />
               <span className="text-sm">Connect your wallet</span>
             </div>
+            {renderRequiredToggle()}
           </div>
         );
       case "file-upload":
@@ -764,6 +988,8 @@ export function FormBlockComponent({
               </svg>
               <span className="text-sm mt-2">Click or drag to upload</span>
             </div>
+            {renderFileSettings()}
+            {renderRequiredToggle()}
           </div>
         );
       case "divider":
@@ -792,6 +1018,28 @@ export function FormBlockComponent({
               </svg>
               <span className="text-sm mt-2">Click to upload image</span>
             </div>
+            {renderUrlSetting("Image URL")}
+          </div>
+        );
+      case "video":
+        return (
+          <div className="w-full">
+            {renderEditableLabel("Video", "Video block")}
+            {renderUrlSetting("Video URL")}
+          </div>
+        );
+      case "audio":
+        return (
+          <div className="w-full">
+            {renderEditableLabel("Audio", "Audio block")}
+            {renderUrlSetting("Audio URL")}
+          </div>
+        );
+      case "embed":
+        return (
+          <div className="w-full">
+            {renderEditableLabel("Embed", "Embed block")}
+            {renderUrlSetting("Embed URL")}
           </div>
         );
       case "page-break":
@@ -803,6 +1051,49 @@ export function FormBlockComponent({
               {block.type === "new-page" ? "New page" : "Page break"}
             </span>
             <hr className="border-border flex-1" />
+          </div>
+        );
+      case "thank-you-page":
+        return (
+          <div className="w-full">
+            {renderEditableLabel("Thank you", "Thank you page")}
+            <div className="mt-3 rounded-md border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+              Submission success message
+            </div>
+          </div>
+        );
+      case "conditional-logic":
+        return (
+          <div className="w-full text-sm text-muted-foreground">
+            Conditional logic will be configured in a future step.
+          </div>
+        );
+      case "calculated-field":
+        return (
+          <div className="w-full text-sm text-muted-foreground">
+            Calculated fields will be configured in a future step.
+          </div>
+        );
+      case "hidden-field":
+        return (
+          <div className="w-full text-sm text-muted-foreground">
+            Hidden field values are set via URL parameters.
+          </div>
+        );
+      case "recaptcha":
+        return (
+          <div className="w-full text-sm text-muted-foreground">
+            reCAPTCHA will appear on the public form.
+          </div>
+        );
+      case "respondent-country":
+        return (
+          <div className="w-full">
+            {renderEditableLabel("Respondent's country", "Respondent country")}
+            <div className="border border-border/60 rounded-md px-3 py-2 text-sm text-muted-foreground">
+              Auto-detected on submit
+            </div>
+            {renderRequiredToggle()}
           </div>
         );
       default:

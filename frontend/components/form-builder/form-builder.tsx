@@ -50,22 +50,43 @@ function createBlock(type: BlockType): FormBlock {
     base.timeStep = 15;
   }
 
+  if (type === "linear-scale") {
+    base.scaleMin = 1;
+    base.scaleMax = 5;
+  }
+
+  if (type === "rating") {
+    base.ratingMax = 5;
+  }
+
+  if (type === "file-upload") {
+    base.fileMaxSizeMb = 0.5;
+  }
+
+  if (type === "payment") {
+    base.paymentAmount = 10;
+    base.paymentCurrency = "USD";
+    base.paymentDescription = "Payment";
+  }
+
   return base;
 }
 
 interface FormBuilderProps {
   initialTitle?: string;
   autoFocusFirstBlock?: boolean;
+  initialBlocks?: FormBlock[];
 }
 
 export function FormBuilder({
   initialTitle = "",
   autoFocusFirstBlock = false,
+  initialBlocks,
 }: FormBuilderProps) {
   const [formTitle, setFormTitle] = useState(initialTitle);
-  const [blocks, setBlocks] = useState<FormBlock[]>([
-    { id: generateId(), type: "text", content: "" },
-  ]);
+  const [blocks, setBlocks] = useState<FormBlock[]>(
+    initialBlocks || [{ id: generateId(), type: "text", content: "" }],
+  );
   const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
   const [insertDialogOpen, setInsertDialogOpen] = useState(false);
   const [insertAfterBlockId, setInsertAfterBlockId] = useState<string | null>(

@@ -15,3 +15,12 @@ class SubmissionOut(BaseModel):
     form_id: int
     data: dict[str, Any]
     created_at: datetime
+
+
+class PaymentSessionCreate(BaseModel):
+    block_id: str
+
+
+class PaymentSessionOut(BaseModel):
+    id: str
+    url: str

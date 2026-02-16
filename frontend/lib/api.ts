@@ -27,6 +27,15 @@ type SubmissionResponse = {
   created_at: string;
 };
 
+type PaymentSessionPayload = {
+  block_id: string;
+};
+
+type PaymentSessionResponse = {
+  id: string;
+  url: string;
+};
+
 type TokenResponse = {
   access_token: string;
   token_type: string;
@@ -134,6 +143,18 @@ export async function submitForm(
     body: JSON.stringify(data),
   });
   return handleJson(res);
+}
+
+export async function createPaymentSession(
+  shareId: string,
+  payload: PaymentSessionPayload,
+) {
+  const res = await fetch(`${API_BASE}/s/${shareId}/payment-session`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return handleJson<PaymentSessionResponse>(res);
 }
 
 export async function listFormSubmissions(formId: number) {

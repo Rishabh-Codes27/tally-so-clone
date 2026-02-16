@@ -16,6 +16,14 @@ class FormBlock(BaseModel):
     timeStart: Optional[str] = None
     timeEnd: Optional[str] = None
     timeStep: Optional[int] = None
+    scaleMin: Optional[int] = None
+    scaleMax: Optional[int] = None
+    ratingMax: Optional[int] = None
+    fileMaxSizeMb: Optional[float] = None
+    fileAllowedTypes: Optional[list[str]] = None
+    paymentAmount: Optional[float] = None
+    paymentCurrency: Optional[str] = None
+    paymentDescription: Optional[str] = None
 
 
 class FormCreate(BaseModel):

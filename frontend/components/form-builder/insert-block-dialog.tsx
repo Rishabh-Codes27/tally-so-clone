@@ -109,6 +109,14 @@ export function InsertBlockDialog({
         return <div className="text-xl font-bold">Heading 2</div>;
       case "heading3":
         return <div className="text-lg font-semibold">Heading 3</div>;
+      case "title":
+        return <div className="text-xl font-semibold">Title</div>;
+      case "label":
+        return (
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">
+            Label
+          </div>
+        );
       case "paragraph":
         return (
           <p className="text-sm text-muted-foreground">
@@ -258,6 +266,24 @@ export function InsertBlockDialog({
             Upload a file
           </div>
         );
+      case "video":
+        return (
+          <div className="text-xs text-muted-foreground border border-border rounded-md px-3 py-2">
+            Video embed
+          </div>
+        );
+      case "audio":
+        return (
+          <div className="text-xs text-muted-foreground border border-border rounded-md px-3 py-2">
+            Audio embed
+          </div>
+        );
+      case "embed":
+        return (
+          <div className="text-xs text-muted-foreground border border-border rounded-md px-3 py-2">
+            Embed URL
+          </div>
+        );
       case "payment":
         return (
           <div className="text-xs text-muted-foreground border border-border rounded-md px-3 py-2">
@@ -291,9 +317,33 @@ export function InsertBlockDialog({
             Image
           </div>
         );
+      case "respondent-country":
+        return (
+          <div className="text-xs text-muted-foreground border border-border rounded-md px-3 py-2">
+            Country
+          </div>
+        );
+      case "recaptcha":
+        return (
+          <div className="text-xs text-muted-foreground border border-border rounded-md px-3 py-2">
+            reCAPTCHA
+          </div>
+        );
+      case "hidden-field":
+      case "conditional-logic":
+      case "calculated-field":
+        return (
+          <div className="text-xs text-muted-foreground">
+            Configure in settings
+          </div>
+        );
       case "page-break":
       case "new-page":
         return <div className="text-xs text-muted-foreground">New page</div>;
+      case "thank-you-page":
+        return (
+          <div className="text-xs text-muted-foreground">Thank you page</div>
+        );
       case "text":
         return (
           <div className="text-xs text-muted-foreground">
