@@ -64,6 +64,10 @@ export default function ResponsesPage() {
     return Boolean(record.name && record.data);
   };
 
+  const isSignature = (value: unknown): boolean => {
+    return typeof value === "string" && value.startsWith("data:image/");
+  };
+
   const downloadDataUrl = async (dataUrl: string, filename: string) => {
     const response = await fetch(dataUrl);
     const blob = await response.blob();
@@ -203,7 +207,11 @@ export default function ResponsesPage() {
                         {questionMap[key] ?? key}
                       </span>
                       <span className="text-foreground">
-                        {isFileAnswer(value) ? value.name : formatValue(value)}
+                        {isFileAnswer(value)
+                          ? value.name
+                          : isSignature(value)
+                            ? "✓ Signature uploaded"
+                            : formatValue(value)}
                       </span>
                     </div>
                   ))}
