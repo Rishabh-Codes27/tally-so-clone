@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class SubmissionCreate(BaseModel):
     data: dict[str, Any] = Field(default_factory=dict)
+    recaptchaToken: str | None = None
 
 
 class SubmissionOut(BaseModel):

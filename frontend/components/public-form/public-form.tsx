@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 import { getFormByShareId, submitForm } from "@/lib/api";
 import type { AnswerMap, FormResponse, PublicFormState } from "./types";
 import { PublicFormFields } from "./public-form-fields";
@@ -21,6 +22,8 @@ export function PublicForm({ shareId }: PublicFormProps) {
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pageIndex, setPageIndex] = useState(0);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   useEffect(() => {
     if (!shareId) return;
@@ -109,6 +112,17 @@ export function PublicForm({ shareId }: PublicFormProps) {
 
   const handleSubmit = async () => {
     if (!state.form) return;
+
+    // Check if form has reCAPTCHA block
+    const hasRecaptcha = state.form.blocks.some(
+      (block) => block.type === "recaptcha",
+    );
+
+    if (hasRecaptcha && !recaptchaToken) {
+      setErrors({ recaptcha: "Please complete the reCAPTCHA" });
+      return;
+    }
+
     const validation = validateAnswers(state.form.blocks, answers);
     if (!validation.isValid) {
       setErrors(validation.errors);
@@ -116,18 +130,33 @@ export function PublicForm({ shareId }: PublicFormProps) {
     }
     setState((prev) => ({ ...prev, isSubmitting: true }));
     try {
-      await submitForm(state.form.share_id, { data: answers });
+      await submitForm(state.form.share_id, {
+        data: answers,
+        recaptchaToken: hasRecaptcha
+          ? (recaptchaToken ?? undefined)
+          : undefined,
+      });
       setState((prev) => ({
         ...prev,
         isSubmitting: false,
         submitSuccess: true,
       }));
+      // Reset reCAPTCHA after successful submission
+      if (hasRecaptcha && recaptchaRef.current) {
+        recaptchaRef.current.reset();
+        setRecaptchaToken(null);
+      }
     } catch (error) {
       setState((prev) => ({
         ...prev,
         isSubmitting: false,
         error: error instanceof Error ? error.message : "Submit failed",
       }));
+      // Reset reCAPTCHA on error
+      if (hasRecaptcha && recaptchaRef.current) {
+        recaptchaRef.current.reset();
+        setRecaptchaToken(null);
+      }
     }
   };
 
@@ -176,6 +205,11 @@ export function PublicForm({ shareId }: PublicFormProps) {
     (block) => block.type === "thank-you-page",
   );
 
+  const hasRecaptcha = state.form.blocks.some(
+    (block) => block.type === "recaptcha",
+  );
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
   const isLastPage = pageIndex >= pages.length - 1;
   const currentBlocks = pages[pageIndex] ?? [];
 
@@ -194,6 +228,30 @@ export function PublicForm({ shareId }: PublicFormProps) {
           onChange={handleChange}
           errors={errors}
         />
+
+        {hasRecaptcha && isLastPage && recaptchaSiteKey && (
+          <div className="mt-8">
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={recaptchaSiteKey}
+              onChange={(token) => {
+                setRecaptchaToken(token);
+                setErrors((prev) => {
+                  const next = { ...prev };
+                  delete next.recaptcha;
+                  return next;
+                });
+              }}
+              onExpired={() => setRecaptchaToken(null)}
+              onErrored={() => setRecaptchaToken(null)}
+            />
+            {errors.recaptcha && (
+              <div className="mt-2 text-sm text-destructive">
+                {errors.recaptcha}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="mt-10 flex flex-wrap items-center gap-3">
           {pageIndex > 0 ? (

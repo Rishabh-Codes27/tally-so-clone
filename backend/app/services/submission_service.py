@@ -1,11 +1,39 @@
 import os
 
+import requests
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from ..models import Form, Submission
 from ..schemas import SubmissionCreate
 from ..services.submission_validation import validate_submission
+
+
+def verify_recaptcha(token: str) -> bool:
+    """Verify reCAPTCHA token with Google."""
+    secret_key = os.getenv("RECAPTCHA_SECRET_KEY")
+    if not secret_key:
+        raise HTTPException(
+            status_code=500,
+            detail="reCAPTCHA is not configured on the server"
+        )
+    
+    try:
+        response = requests.post(
+            "https://www.google.com/recaptcha/api/siteverify",
+            data={
+                "secret": secret_key,
+                "response": token
+            },
+            timeout=10
+        )
+        result = response.json()
+        return result.get("success", False)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"reCAPTCHA verification failed: {str(exc)}"
+        ) from exc
 
 
 def list_submissions_for_form(
@@ -37,6 +65,25 @@ def create_submission_for_share(
     form = db.query(Form).filter(Form.share_id == share_id).first()
     if not form:
         raise HTTPException(status_code=404, detail="Form not found")
+    
+    # Check if form has reCAPTCHA block
+    has_recaptcha = any(
+        block.get("type") == "recaptcha" 
+        for block in (form.blocks or [])
+    )
+    
+    # Verify reCAPTCHA if required
+    if has_recaptcha:
+        if not payload.recaptchaToken:
+            raise HTTPException(
+                status_code=422,
+                detail="reCAPTCHA verification is required"
+            )
+        if not verify_recaptcha(payload.recaptchaToken):
+            raise HTTPException(
+                status_code=422,
+                detail="reCAPTCHA verification failed. Please try again."
+            )
 
     validate_submission(form.blocks or [], payload.data)
 

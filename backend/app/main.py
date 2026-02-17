@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -7,6 +8,9 @@ from .routers import debug as debug_router
 from .routers import forms as forms_router
 from .routers import public as public_router
 from .services import auth_service
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI(title="Tally Clone API")
 

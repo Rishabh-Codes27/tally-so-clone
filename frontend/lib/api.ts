@@ -23,6 +23,7 @@ type FormUpdatePayload = {
 
 type SubmissionCreatePayload = {
   data: Record<string, unknown>;
+  recaptchaToken?: string;
 };
 
 type SubmissionResponse = {
