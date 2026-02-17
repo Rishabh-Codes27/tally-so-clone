@@ -1072,21 +1072,7 @@ export function PublicFormFields({
               </div>
             );
           case "recaptcha":
-            return (
-              <div key={block.id} className="flex flex-col gap-2">
-                <label className="inline-flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    onChange={(e) =>
-                      onChange(block.id, e.target.checked ? "verified" : "")
-                    }
-                    className="h-4 w-4"
-                  />
-                  I am not a robot
-                </label>
-                <FieldError message={error} />
-              </div>
-            );
+            return null;
           case "hidden-field":
           case "calculated-field":
           case "thank-you-page":
