@@ -1,6 +1,12 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import type { FormBlock } from "./types";
+import PhoneInput, {
+  getCountries,
+  getCountryCallingCode,
+} from "react-phone-number-input";
+import type { Country } from "react-phone-number-input";
 
 interface FormPreviewProps {
   formTitle: string;
@@ -50,12 +56,127 @@ const fallbackLabels: Record<FormBlock["type"], string> = {
   "respondent-country": "Respondent's country",
 };
 
+const PHONE_INPUT_PATTERN = /^\+?\d*$/;
+const MAX_PHONE_NATIONAL_DIGITS = 10;
+
 function getLabel(block: FormBlock) {
+  if (block.type === "image") {
+    return fallbackLabels[block.type];
+  }
   const content = block.content?.trim();
   return content || fallbackLabels[block.type];
 }
 
 export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
+  const defaultCountry = useMemo<Country | undefined>(() => {
+    if (typeof navigator === "undefined") return undefined;
+    const locale = navigator.language || "";
+    const parts = locale.split("-");
+    const country = parts.length > 1 ? parts[1].toUpperCase() : "";
+    return country ? (country as Country) : undefined;
+  }, []);
+  const countryOptions = useMemo(() => {
+    const locale = typeof navigator !== "undefined" ? navigator.language : "en";
+    const displayNames =
+      typeof Intl !== "undefined" && "DisplayNames" in Intl
+        ? new Intl.DisplayNames([locale], { type: "region" })
+        : null;
+    return getCountries()
+      .map((code) => ({
+        code,
+        name: displayNames?.of(code) ?? code,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, []);
+  const [inputValues, setInputValues] = useState<Record<string, string>>({});
+  const [phoneCountries, setPhoneCountries] = useState<
+    Record<string, Country | undefined>
+  >({});
+  const [inputErrors, setInputErrors] = useState<Record<string, string>>({});
+
+  const setInputError = (
+    blockId: string,
+    hasError: boolean,
+    message = "Only numbers are allowed.",
+  ) => {
+    if (hasError) {
+      setInputErrors((prev) => ({
+        ...prev,
+        [blockId]: message,
+      }));
+      return;
+    }
+
+    setInputErrors((prev) => {
+      if (!prev[blockId]) return prev;
+      const next = { ...prev };
+      delete next[blockId];
+      return next;
+    });
+  };
+
+  const normalizeNumberInput = (value: string) => {
+    const cleaned = value.replace(/[^0-9.-]/g, "");
+    const hasLeadingMinus = cleaned.startsWith("-");
+    const withoutMinus = cleaned.replace(/-/g, "");
+    const [intPart, ...decimals] = withoutMinus.split(".");
+    const decimalPart = decimals.length ? `.${decimals.join("")}` : "";
+    return `${hasLeadingMinus ? "-" : ""}${intPart}${decimalPart}`;
+  };
+
+  const normalizePhoneInput = (value: string) => {
+    const cleaned = value.replace(/[^\d+]/g, "");
+    if (cleaned.startsWith("+")) {
+      return "+" + cleaned.slice(1).replace(/\+/g, "");
+    }
+    return cleaned.replace(/\+/g, "");
+  };
+
+  const applyPhoneLimit = (value: string, country?: Country) => {
+    const normalized = normalizePhoneInput(value);
+    const digits = normalized.replace(/\D/g, "");
+    if (!country) return { normalized, exceeded: false };
+    const countryCode = getCountryCallingCode(country);
+    if (!digits.startsWith(countryCode)) {
+      return { normalized, exceeded: false };
+    }
+    const national = digits.slice(countryCode.length);
+    if (national.length <= MAX_PHONE_NATIONAL_DIGITS) {
+      return { normalized, exceeded: false };
+    }
+    const trimmed = national.slice(0, MAX_PHONE_NATIONAL_DIGITS);
+    return {
+      normalized: `+${countryCode}${trimmed}`,
+      exceeded: true,
+    };
+  };
+
+  const handleNumberChange = (blockId: string, raw: string) => {
+    const normalized = normalizeNumberInput(raw);
+    setInputError(
+      blockId,
+      raw !== normalized,
+      "Only numbers, - and . are allowed.",
+    );
+    setInputValues((prev) => ({ ...prev, [blockId]: normalized }));
+  };
+
+  const handlePhoneChange = (blockId: string, value: string) => {
+    const country = phoneCountries[blockId] ?? defaultCountry;
+    const { normalized, exceeded } = applyPhoneLimit(value, country);
+    if (exceeded) {
+      setInputError(blockId, false);
+      setInputValues((prev) => ({ ...prev, [blockId]: normalized }));
+      return;
+    }
+    setInputError(
+      blockId,
+      !PHONE_INPUT_PATTERN.test(normalized),
+      "Only numbers and + are allowed.",
+    );
+    setInputValues((prev) => ({ ...prev, [blockId]: normalized }));
+  };
+
   return (
     <div className="max-w-[640px] mx-auto px-5 sm:px-6 py-14">
       <div className="mb-10 text-center">
@@ -154,10 +275,21 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                       {getLabel(block)}
                     </label>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       placeholder="0"
+                      value={inputValues[block.id] ?? ""}
+                      onChange={(event) =>
+                        handleNumberChange(block.id, event.target.value)
+                      }
                       className="border-b border-border/60 py-2 text-sm text-foreground bg-transparent outline-none max-w-sm"
                     />
+                    {inputErrors[block.id] && (
+                      <p className="text-xs text-destructive">
+                        {inputErrors[block.id]}
+                      </p>
+                    )}
                   </div>
                 );
               case "url":
@@ -179,11 +311,25 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     <label className="text-sm font-semibold text-foreground/90">
                       {getLabel(block)}
                     </label>
-                    <input
-                      type="tel"
-                      placeholder="+1 (555) 000-0000"
-                      className="border-b border-border/60 py-2 text-sm text-foreground bg-transparent outline-none max-w-sm"
+                    <PhoneInput
+                      defaultCountry={defaultCountry}
+                      value={inputValues[block.id] ?? ""}
+                      onChange={(value) =>
+                        handlePhoneChange(block.id, value ?? "")
+                      }
+                      international
+                      withCountryCallingCode
+                      countryCallingCodeEditable
+                      className="phone-input"
+                      numberInputProps={{
+                        className: "bg-transparent outline-none text-sm",
+                      }}
                     />
+                    {inputErrors[block.id] && (
+                      <p className="text-xs text-destructive">
+                        {inputErrors[block.id]}
+                      </p>
+                    )}
                   </div>
                 );
               case "date":
@@ -534,12 +680,17 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     <label className="text-sm font-medium text-foreground">
                       {getLabel(block)}
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Auto-detected"
-                      disabled
-                      className="border border-border rounded-md px-3 py-2 text-sm text-muted-foreground bg-transparent outline-none"
-                    />
+                    <select
+                      className="border border-border rounded-md px-3 py-2 text-sm bg-transparent outline-none"
+                      defaultValue={defaultCountry ?? ""}
+                    >
+                      <option value="">Select country</option>
+                      {countryOptions.map((option) => (
+                        <option key={option.code} value={option.code}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 );
               case "image":
@@ -548,11 +699,73 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     <label className="text-sm font-medium text-foreground">
                       {getLabel(block)}
                     </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="text-sm text-foreground"
-                    />
+                    {block.content ? (
+                      <img
+                        src={block.content}
+                        alt={getLabel(block)}
+                        className="rounded-md border border-border/40"
+                      />
+                    ) : (
+                      <div className="rounded-md border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                        Upload an image in the builder to display it here.
+                      </div>
+                    )}
+                  </div>
+                );
+              case "video":
+                return (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-foreground">
+                      {getLabel(block)}
+                    </label>
+                    {block.content ? (
+                      <video
+                        controls
+                        className="w-full rounded-md border border-border/40"
+                      >
+                        <source src={block.content} />
+                      </video>
+                    ) : (
+                      <div className="rounded-md border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                        Add a video URL in the builder to preview it here.
+                      </div>
+                    )}
+                  </div>
+                );
+              case "audio":
+                return (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-foreground">
+                      {getLabel(block)}
+                    </label>
+                    {block.content ? (
+                      <audio controls className="w-full">
+                        <source src={block.content} />
+                      </audio>
+                    ) : (
+                      <div className="rounded-md border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                        Add an audio URL in the builder to preview it here.
+                      </div>
+                    )}
+                  </div>
+                );
+              case "embed":
+                return (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-foreground">
+                      {getLabel(block)}
+                    </label>
+                    {block.content ? (
+                      <iframe
+                        src={block.content}
+                        className="w-full min-h-[240px] rounded-md border border-border/40"
+                        title={getLabel(block)}
+                      />
+                    ) : (
+                      <div className="rounded-md border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                        Add an embed URL in the builder to preview it here.
+                      </div>
+                    )}
                   </div>
                 );
               case "divider":

@@ -1,9 +1,17 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import type { FormBlock } from "@/components/form-builder/types";
 import { getLabel } from "./labels";
+import PhoneInput, {
+  getCountries,
+  getCountryCallingCode,
+} from "react-phone-number-input";
+import type { Country } from "react-phone-number-input";
+
+const PHONE_INPUT_PATTERN = /^\+?\d*$/;
+const MAX_PHONE_NATIONAL_DIGITS = 10;
 
 interface PublicFormFieldsProps {
   blocks: FormBlock[];
@@ -98,15 +106,196 @@ export function PublicFormFields({
 }: PublicFormFieldsProps) {
   const errorMap = errors || {};
   const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+  const [inputErrors, setInputErrors] = useState<Record<string, string>>({});
+  const [draggingItem, setDraggingItem] = useState<
+    Record<string, string | null>
+  >({});
+  const [dragOverItem, setDragOverItem] = useState<
+    Record<string, string | null>
+  >({});
+  const [detectedCountry, setDetectedCountry] = useState<Country | undefined>(
+    undefined,
+  );
+  const [manualCountrySelection, setManualCountrySelection] = useState<
+    Record<string, boolean>
+  >({});
+  const [phoneCountries, setPhoneCountries] = useState<
+    Record<string, Country | undefined>
+  >({});
+  const [manualPhoneCountry, setManualPhoneCountry] = useState<
+    Record<string, boolean>
+  >({});
+  const defaultCountry = useMemo<Country | undefined>(() => {
+    if (typeof navigator === "undefined") return undefined;
+    const locale = navigator.language || "";
+    const parts = locale.split("-");
+    const country = parts.length > 1 ? parts[1].toUpperCase() : "";
+    return country ? (country as Country) : undefined;
+  }, []);
+  const countryOptions = useMemo(() => {
+    const locale = typeof navigator !== "undefined" ? navigator.language : "en";
+    const displayNames =
+      typeof Intl !== "undefined" && "DisplayNames" in Intl
+        ? new Intl.DisplayNames([locale], { type: "region" })
+        : null;
+    return getCountries()
+      .map((code) => ({
+        code,
+        name: displayNames?.of(code) ?? code,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, []);
   const optionMap = useMemo(
     () => new Map(blocks.map((block) => [block.id, block.options || []])),
     [blocks],
   );
 
+  useEffect(() => {
+    if (detectedCountry || typeof navigator === "undefined") return;
+    if (!navigator.geolocation) {
+      setDetectedCountry(defaultCountry);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
+          );
+          if (!response.ok) throw new Error("Geocode failed");
+          const data = (await response.json()) as { countryCode?: string };
+          const code = data.countryCode?.toUpperCase();
+          setDetectedCountry(
+            code ? (code as Country) : (defaultCountry ?? undefined),
+          );
+        } catch {
+          setDetectedCountry(defaultCountry);
+        }
+      },
+      () => setDetectedCountry(defaultCountry),
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 600000 },
+    );
+  }, [defaultCountry, detectedCountry]);
+
+  useEffect(() => {
+    const country = detectedCountry ?? defaultCountry;
+    if (!country) return;
+    blocks.forEach((block) => {
+      if (block.type === "respondent-country") {
+        if (manualCountrySelection[block.id]) return;
+        if (answers[block.id] !== country) {
+          onChange(block.id, country);
+        }
+      }
+      if (block.type === "phone") {
+        if (manualPhoneCountry[block.id]) return;
+        if (phoneCountries[block.id] !== country) {
+          setPhoneCountries((prev) => ({ ...prev, [block.id]: country }));
+        }
+      }
+    });
+  }, [
+    answers,
+    blocks,
+    defaultCountry,
+    detectedCountry,
+    manualCountrySelection,
+    manualPhoneCountry,
+    onChange,
+    phoneCountries,
+  ]);
+
+  const setInputError = (
+    blockId: string,
+    hasError: boolean,
+    message = "Only numbers are allowed.",
+  ) => {
+    if (hasError) {
+      setInputErrors((prev) => ({
+        ...prev,
+        [blockId]: message,
+      }));
+      return;
+    }
+
+    setInputErrors((prev) => {
+      if (!prev[blockId]) return prev;
+      const next = { ...prev };
+      delete next[blockId];
+      return next;
+    });
+  };
+
+  const normalizeNumberInput = (value: string) => {
+    const cleaned = value.replace(/[^0-9.-]/g, "");
+    const hasLeadingMinus = cleaned.startsWith("-");
+    const withoutMinus = cleaned.replace(/-/g, "");
+    const [intPart, ...decimals] = withoutMinus.split(".");
+    const decimalPart = decimals.length ? `.${decimals.join("")}` : "";
+    return `${hasLeadingMinus ? "-" : ""}${intPart}${decimalPart}`;
+  };
+
+  const normalizePhoneInput = (value: string) => {
+    const cleaned = value.replace(/[^\d+]/g, "");
+    if (cleaned.startsWith("+")) {
+      return "+" + cleaned.slice(1).replace(/\+/g, "");
+    }
+    return cleaned.replace(/\+/g, "");
+  };
+
+  const applyPhoneLimit = (value: string, country?: Country) => {
+    const normalized = normalizePhoneInput(value);
+    const digits = normalized.replace(/\D/g, "");
+    if (!country) return { normalized, exceeded: false };
+    const countryCode = getCountryCallingCode(country);
+    if (!digits.startsWith(countryCode)) {
+      return { normalized, exceeded: false };
+    }
+    const national = digits.slice(countryCode.length);
+    if (national.length <= MAX_PHONE_NATIONAL_DIGITS) {
+      return { normalized, exceeded: false };
+    }
+    const trimmed = national.slice(0, MAX_PHONE_NATIONAL_DIGITS);
+    return {
+      normalized: `+${countryCode}${trimmed}`,
+      exceeded: true,
+    };
+  };
+
+  const handlePhoneChange = (blockId: string, value: string) => {
+    const country =
+      phoneCountries[blockId] ?? detectedCountry ?? defaultCountry;
+    const { normalized, exceeded } = applyPhoneLimit(value, country);
+    if (exceeded) {
+      setInputError(blockId, false);
+      onChange(blockId, normalized);
+      return;
+    }
+    setInputError(
+      blockId,
+      !PHONE_INPUT_PATTERN.test(normalized),
+      "Only numbers and + are allowed.",
+    );
+    onChange(blockId, normalized);
+  };
+
+  const handleNumberChange = (blockId: string, raw: string) => {
+    const normalized = normalizeNumberInput(raw);
+    setInputError(
+      blockId,
+      raw !== normalized,
+      "Only numbers, - and . are allowed.",
+    );
+    onChange(blockId, normalized);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {blocks.map((block) => {
-        const error = errorMap[block.id] ?? fileErrors[block.id];
+        const error =
+          errorMap[block.id] ?? inputErrors[block.id] ?? fileErrors[block.id];
         switch (block.type) {
           case "text":
             return block.content?.trim() ? (
@@ -193,8 +382,17 @@ export function PublicFormFields({
               <div key={block.id} className="flex flex-col gap-2">
                 <label className="text-sm font-medium">{getLabel(block)}</label>
                 <input
-                  type="number"
-                  onChange={(e) => onChange(block.id, e.target.value)}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={
+                    typeof answers[block.id] === "number"
+                      ? String(answers[block.id])
+                      : typeof answers[block.id] === "string"
+                        ? (answers[block.id] as string)
+                        : ""
+                  }
+                  onChange={(e) => handleNumberChange(block.id, e.target.value)}
                   className="border-b border-border py-2 text-sm bg-transparent outline-none"
                 />
                 <FieldError message={error} />
@@ -216,10 +414,36 @@ export function PublicFormFields({
             return (
               <div key={block.id} className="flex flex-col gap-2">
                 <label className="text-sm font-medium">{getLabel(block)}</label>
-                <input
-                  type="tel"
-                  onChange={(e) => onChange(block.id, e.target.value)}
-                  className="border-b border-border py-2 text-sm bg-transparent outline-none"
+                <PhoneInput
+                  defaultCountry={detectedCountry ?? defaultCountry}
+                  country={
+                    phoneCountries[block.id] ??
+                    detectedCountry ??
+                    defaultCountry
+                  }
+                  onCountryChange={(country) => {
+                    setManualPhoneCountry((prev) => ({
+                      ...prev,
+                      [block.id]: true,
+                    }));
+                    setPhoneCountries((prev) => ({
+                      ...prev,
+                      [block.id]: country,
+                    }));
+                  }}
+                  value={
+                    typeof answers[block.id] === "string"
+                      ? (answers[block.id] as string)
+                      : ""
+                  }
+                  onChange={(value) => handlePhoneChange(block.id, value ?? "")}
+                  international
+                  withCountryCallingCode
+                  countryCallingCodeEditable
+                  className="phone-input"
+                  numberInputProps={{
+                    className: "bg-transparent outline-none text-sm",
+                  }}
                 />
                 <FieldError message={error} />
               </div>
@@ -456,37 +680,88 @@ export function PublicFormFields({
           case "ranking": {
             const options = optionMap.get(block.id) || [];
             const selected = (answers[block.id] as string[]) || [];
-            const ranks = options.map((option, index) =>
-              selected[index] ? selected[index] : option,
-            );
+            const ranks = selected.length ? selected : options;
+            const activeDrag = draggingItem[block.id];
+            const activeOver = dragOverItem[block.id];
             return (
               <fieldset key={block.id} className="flex flex-col gap-3">
                 <legend className="text-sm font-medium">
                   {getLabel(block)}
                 </legend>
-                {options.map((option, index) => (
-                  <div key={option} className="flex items-center gap-3 text-sm">
-                    <span className="w-6 text-muted-foreground">
-                      {index + 1}.
-                    </span>
-                    <span className="flex-1">{option}</span>
-                    <select
-                      value={ranks[index]}
-                      onChange={(e) => {
-                        const next = [...ranks];
-                        next[index] = e.target.value;
-                        onChange(block.id, next);
+                <p className="text-xs text-muted-foreground">
+                  Drag items to rank them in order.
+                </p>
+                <div className="flex flex-col gap-2">
+                  {ranks.map((option, index) => (
+                    <div
+                      key={option}
+                      draggable
+                      onDragStart={(event) => {
+                        event.dataTransfer.setData("text/plain", option);
+                        event.dataTransfer.effectAllowed = "move";
+                        setDraggingItem((prev) => ({
+                          ...prev,
+                          [block.id]: option,
+                        }));
                       }}
-                      className="border border-border rounded-md px-2 py-1 text-sm bg-transparent outline-none"
+                      onDragOver={(event) => {
+                        event.preventDefault();
+                        setDragOverItem((prev) => ({
+                          ...prev,
+                          [block.id]: option,
+                        }));
+                      }}
+                      onDragLeave={() =>
+                        setDragOverItem((prev) => ({
+                          ...prev,
+                          [block.id]: null,
+                        }))
+                      }
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        const dragged =
+                          draggingItem[block.id] ??
+                          event.dataTransfer.getData("text/plain");
+                        if (!dragged || dragged === option) return;
+                        const next = ranks.filter((item) => item !== dragged);
+                        const targetIndex = next.indexOf(option);
+                        next.splice(targetIndex, 0, dragged);
+                        onChange(block.id, next);
+                        setDraggingItem((prev) => ({
+                          ...prev,
+                          [block.id]: null,
+                        }));
+                        setDragOverItem((prev) => ({
+                          ...prev,
+                          [block.id]: null,
+                        }));
+                      }}
+                      onDragEnd={() => {
+                        setDraggingItem((prev) => ({
+                          ...prev,
+                          [block.id]: null,
+                        }));
+                        setDragOverItem((prev) => ({
+                          ...prev,
+                          [block.id]: null,
+                        }));
+                      }}
+                      className={`flex items-center gap-3 rounded-md border border-border px-3 py-2 text-sm bg-transparent transition-colors ${
+                        activeDrag === option
+                          ? "opacity-60"
+                          : activeOver === option
+                            ? "border-primary bg-primary/5"
+                            : ""
+                      }`}
                     >
-                      {options.map((opt) => (
-                        <option key={opt} value={opt}>
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                ))}
+                      <span className="w-6 text-muted-foreground">
+                        {index + 1}.
+                      </span>
+                      <span className="flex-1 text-foreground">{option}</span>
+                      <span className="text-muted-foreground">⋮⋮</span>
+                    </div>
+                  ))}
+                </div>
                 <FieldError message={error} />
               </fieldset>
             );
@@ -725,12 +1000,29 @@ export function PublicFormFields({
             return (
               <div key={block.id} className="flex flex-col gap-2">
                 <label className="text-sm font-medium">{getLabel(block)}</label>
-                <input
-                  type="text"
-                  value={(answers[block.id] as string) || ""}
-                  readOnly
-                  className="border border-border rounded-md px-3 py-2 text-sm bg-muted text-muted-foreground"
-                />
+                <select
+                  value={
+                    (answers[block.id] as string) ||
+                    detectedCountry ||
+                    defaultCountry ||
+                    ""
+                  }
+                  onChange={(e) => {
+                    setManualCountrySelection((prev) => ({
+                      ...prev,
+                      [block.id]: true,
+                    }));
+                    onChange(block.id, e.target.value);
+                  }}
+                  className="border border-border rounded-md px-3 py-2 text-sm bg-transparent outline-none"
+                >
+                  <option value="">Select country</option>
+                  {countryOptions.map((option) => (
+                    <option key={option.code} value={option.code}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
                 <FieldError message={error} />
               </div>
             );

@@ -54,3 +54,31 @@
     @apply bg-background text-foreground;
   }
 }
+
+.phone-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.phone-input .PhoneInputCountrySelect {
+  border: 0;
+  background: transparent;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+}
+
+.phone-input .PhoneInputInput {
+  border: 0;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  color: hsl(var(--foreground));
+}
+
+.phone-input .PhoneInputCountryIcon {
+  box-shadow: none;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getFormByShareId, submitForm } from "@/lib/api";
 import type { AnswerMap, FormResponse, PublicFormState } from "./types";
 import { PublicFormFields } from "./public-form-fields";
@@ -20,17 +20,12 @@ export function PublicForm({ shareId }: PublicFormProps) {
   });
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const getCountryFromLocale = () => {
-    if (typeof navigator === "undefined") return "";
-    const locale = navigator.language || "";
-    const parts = locale.split("-");
-    return parts.length > 1 ? parts[1].toUpperCase() : "";
-  };
+  const [pageIndex, setPageIndex] = useState(0);
 
   useEffect(() => {
     if (!shareId) return;
     let isMounted = true;
+    setPageIndex(0);
     setState((prev) => ({ ...prev, isLoading: true }));
     getFormByShareId(shareId)
       .then((form: FormResponse) => {
@@ -76,12 +71,30 @@ export function PublicForm({ shareId }: PublicFormProps) {
             next[block.id] = params.get(key) || "";
           }
         }
-        if (block.type === "respondent-country" && !next[block.id]) {
-          next[block.id] = getCountryFromLocale();
-        }
       }
       return next;
     });
+  }, [state.form]);
+
+  const pages = useMemo(() => {
+    if (!state.form) return [] as FormResponse["blocks"][];
+    const result: FormResponse["blocks"][] = [];
+    let current: FormResponse["blocks"] = [];
+
+    for (const block of state.form.blocks) {
+      if (block.type === "new-page") {
+        result.push(current);
+        current = [];
+        continue;
+      }
+      current.push(block);
+    }
+
+    if (current.length || result.length === 0) {
+      result.push(current);
+    }
+
+    return result;
   }, [state.form]);
 
   const handleChange = (blockId: string, value: unknown) => {
@@ -118,6 +131,23 @@ export function PublicForm({ shareId }: PublicFormProps) {
     }
   };
 
+  const handleNextPage = () => {
+    if (!state.form) return;
+    const currentBlocks = pages[pageIndex] ?? [];
+    const validation = validateAnswers(currentBlocks, answers);
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
+    setErrors({});
+    setPageIndex((prev) => Math.min(prev + 1, pages.length - 1));
+  };
+
+  const handlePreviousPage = () => {
+    setErrors({});
+    setPageIndex((prev) => Math.max(prev - 1, 0));
+  };
+
   if (!shareId) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center text-sm text-destructive">
@@ -146,6 +176,9 @@ export function PublicForm({ shareId }: PublicFormProps) {
     (block) => block.type === "thank-you-page",
   );
 
+  const isLastPage = pageIndex >= pages.length - 1;
+  const currentBlocks = pages[pageIndex] ?? [];
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-6 py-16">
@@ -156,20 +189,33 @@ export function PublicForm({ shareId }: PublicFormProps) {
         </div>
 
         <PublicFormFields
-          blocks={state.form.blocks}
+          blocks={currentBlocks}
           answers={answers}
           onChange={handleChange}
           errors={errors}
         />
 
-        <div className="mt-10 flex justify-start">
+        <div className="mt-10 flex flex-wrap items-center gap-3">
+          {pageIndex > 0 ? (
+            <button
+              type="button"
+              onClick={handlePreviousPage}
+              className="px-5 py-2 rounded-md text-sm font-semibold text-foreground border border-border hover:bg-muted"
+            >
+              Back
+            </button>
+          ) : null}
           <button
             type="button"
-            onClick={handleSubmit}
+            onClick={isLastPage ? handleSubmit : handleNextPage}
             disabled={state.isSubmitting}
             className="px-6 py-2 rounded-md text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {state.isSubmitting ? "Submitting..." : "Submit response"}
+            {state.isSubmitting
+              ? "Submitting..."
+              : isLastPage
+                ? "Submit response"
+                : "Next"}
           </button>
         </div>
 

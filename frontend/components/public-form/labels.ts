@@ -44,6 +44,9 @@ const fallbackLabels: Record<FormBlock["type"], string> = {
 };
 
 function getLabel(block: FormBlock) {
+  if (block.type === "image") {
+    return fallbackLabels[block.type];
+  }
   const content = block.content?.trim();
   return content || fallbackLabels[block.type];
 }

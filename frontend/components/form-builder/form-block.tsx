@@ -45,6 +45,7 @@ export function FormBlockComponent({
   const [slashQuery, setSlashQuery] = useState("");
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [isDragOver, setIsDragOver] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const isTextBlock = block.type === "text";
 
@@ -133,6 +134,15 @@ export function FormBlockComponent({
     const newOptions = [...(block.options || [])];
     newOptions[index] = value;
     onUpdate({ ...block, options: newOptions });
+  };
+
+  const handleImageSelect = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== "string") return;
+      onUpdate({ ...block, content: reader.result });
+    };
+    reader.readAsDataURL(file);
   };
 
   const addOption = () => {
@@ -1001,24 +1011,59 @@ export function FormBlockComponent({
       case "image":
         return (
           <div className="w-full">
-            <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center text-muted-foreground pointer-events-none">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <div className="border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center text-muted-foreground">
+              {block.content ? (
+                <img
+                  src={block.content}
+                  alt={block.content ? "Uploaded" : ""}
+                  className="max-h-48 w-full object-contain rounded-md border border-border/50 bg-background"
+                />
+              ) : (
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                  <circle cx="9" cy="9" r="2" />
+                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                </svg>
+              )}
+              <span className="text-sm mt-2">
+                {block.content ? "Replace image" : "Click to upload image"}
+              </span>
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) handleImageSelect(file);
+                }}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                className="mt-3 px-3 py-1.5 rounded-md border border-border text-xs text-foreground hover:bg-muted"
               >
-                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-              </svg>
-              <span className="text-sm mt-2">Click to upload image</span>
+                Upload image
+              </button>
+              {block.content ? (
+                <button
+                  type="button"
+                  onClick={() => onUpdate({ ...block, content: "" })}
+                  className="mt-2 text-xs text-muted-foreground hover:text-destructive"
+                >
+                  Remove image
+                </button>
+              ) : null}
             </div>
-            {renderUrlSetting("Image URL")}
           </div>
         );
       case "video":

@@ -25,24 +25,12 @@ export default function Page() {
             <span className="text-foreground font-medium">Tally</span>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm">
-            <button
-              aria-disabled="true"
-              className="group inline-flex items-center gap-2 text-foreground hover:text-foreground cursor-not-allowed"
-            >
-              Product
-              <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                <Ban className="h-3.5 w-3.5 text-destructive" />
-              </span>
-            </button>
-            <button
-              aria-disabled="true"
-              className="group inline-flex items-center gap-2 text-foreground hover:text-foreground cursor-not-allowed"
+            <Link
+              href="/builder?view=templates"
+              className="inline-flex items-center gap-2 text-foreground hover:text-foreground/80"
             >
               Templates
-              <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                <Ban className="h-3.5 w-3.5 text-destructive" />
-              </span>
-            </button>
+            </Link>
             <button
               aria-disabled="true"
               className="group inline-flex items-center gap-2 text-foreground hover:text-foreground cursor-not-allowed"

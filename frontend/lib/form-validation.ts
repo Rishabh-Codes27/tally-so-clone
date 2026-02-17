@@ -8,7 +8,8 @@ type ValidationResult = {
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_PATTERN = /^[+0-9()\s-]{6,}$/;
+const NUMBER_PATTERN = /^-?(?:\d+|\d*\.\d+)$/;
+const PHONE_PATTERN = /^\+?\d+$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_PATTERN = /^\d{2}:\d{2}$/;
 
@@ -27,6 +28,14 @@ function isValidUrl(value: string) {
   } catch {
     return false;
   }
+}
+
+function isValidDataImage(value: string) {
+  return value.startsWith("data:image/");
+}
+
+function isValidMediaSource(value: string) {
+  return isValidUrl(value) || isValidDataImage(value);
 }
 
 function matchesAllowedType(fileType: string, allowed: string[]) {
@@ -71,7 +80,7 @@ function validateBlock(block: FormBlock, value: unknown): string | null {
     case "number": {
       if (typeof value === "number") return null;
       if (typeof value === "string" && value.trim() !== "") {
-        return Number.isFinite(Number(value)) ? null : "Enter a valid number.";
+        return NUMBER_PATTERN.test(value) ? null : "Enter a valid number.";
       }
       return "Enter a valid number.";
     }
@@ -82,7 +91,7 @@ function validateBlock(block: FormBlock, value: unknown): string | null {
     case "phone":
       return typeof value === "string" && PHONE_PATTERN.test(value)
         ? null
-        : "Enter a valid phone number.";
+        : "Only numbers and + are allowed.";
     case "date":
       return typeof value === "string" && DATE_PATTERN.test(value)
         ? null
@@ -170,9 +179,25 @@ function validateBlock(block: FormBlock, value: unknown): string | null {
       return null;
     }
     case "signature":
-      return typeof value === "string" && value.startsWith("data:image/")
+      return typeof value === "string" && isValidDataImage(value)
         ? null
         : "Add a signature.";
+    case "image":
+      return typeof value === "string" && isValidMediaSource(value)
+        ? null
+        : "Provide a valid image.";
+    case "video":
+      return typeof value === "string" && isValidUrl(value)
+        ? null
+        : "Provide a valid video URL.";
+    case "audio":
+      return typeof value === "string" && isValidUrl(value)
+        ? null
+        : "Provide a valid audio URL.";
+    case "embed":
+      return typeof value === "string" && isValidUrl(value)
+        ? null
+        : "Provide a valid embed URL.";
     // case "payment": {
     //   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     //     return "Payment is required.";
