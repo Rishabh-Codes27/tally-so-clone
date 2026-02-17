@@ -17,7 +17,6 @@ export type BlockType =
   | "multiple-choice"
   | "checkboxes"
   | "dropdown"
-  | "multi-select"
   | "linear-scale"
   | "matrix"
   | "rating"
@@ -131,13 +130,6 @@ export const SLASH_COMMANDS: SlashCommandItem[] = [
     label: "Dropdown",
     description: "Select from a list",
     icon: "dropdown",
-    category: "Questions",
-  },
-  {
-    type: "multi-select",
-    label: "Multi-select",
-    description: "Select multiple items",
-    icon: "multi-select",
     category: "Questions",
   },
   {

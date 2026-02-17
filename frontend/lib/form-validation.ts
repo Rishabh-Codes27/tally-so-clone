@@ -118,8 +118,7 @@ function validateBlock(block: FormBlock, value: unknown): string | null {
       return typeof value === "string" && (block.options || []).includes(value)
         ? null
         : "Select a valid option.";
-    case "checkboxes":
-    case "multi-select": {
+    case "checkboxes": {
       if (!Array.isArray(value)) return "Select valid options.";
       const allowed = new Set(block.options || []);
       return value.every(

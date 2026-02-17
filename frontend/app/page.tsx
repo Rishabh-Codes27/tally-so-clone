@@ -105,8 +105,8 @@ export default function Page() {
           </div>
         </main>
 
-        {/* Floating Scope Document Button - DISABLED */}
-        {/* <Tooltip>
+        {/* Floating Scope Document Button */}
+        <Tooltip>
           <TooltipTrigger asChild>
             <a
               href="/scope_doc.pdf"
@@ -121,7 +121,7 @@ export default function Page() {
           <TooltipContent side="left">
             <p>Application scope document</p>
           </TooltipContent>
-        </Tooltip> */}
+        </Tooltip>
       </div>
     </TooltipProvider>
   );

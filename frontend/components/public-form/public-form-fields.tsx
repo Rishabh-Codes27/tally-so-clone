@@ -610,29 +610,6 @@ export function PublicFormFields({
                 <FieldError message={error} />
               </div>
             );
-          case "multi-select":
-            return (
-              <div key={block.id} className="flex flex-col gap-2">
-                <label className="text-sm font-medium">{getLabel(block)}</label>
-                <select
-                  multiple
-                  onChange={(e) => {
-                    const next = Array.from(e.target.selectedOptions).map(
-                      (opt) => opt.value,
-                    );
-                    onChange(block.id, next);
-                  }}
-                  className="border border-border rounded-md px-3 py-2 text-sm bg-transparent outline-none"
-                >
-                  {(block.options || []).map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <FieldError message={error} />
-              </div>
-            );
           case "linear-scale":
             return (
               <fieldset key={block.id} className="flex flex-col gap-2">

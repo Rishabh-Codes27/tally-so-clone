@@ -38,7 +38,6 @@ const fallbackLabels: Record<FormBlock["type"], string> = {
   "multiple-choice": "Question",
   checkboxes: "Question",
   dropdown: "Question",
-  "multi-select": "Question",
   "linear-scale": "Question",
   matrix: "Question",
   rating: "Question",
@@ -534,24 +533,6 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                       {getLabel(block)}
                     </label>
                     <select className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none">
-                      {(block.options || []).map((option, index) => (
-                        <option key={index} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              case "multi-select":
-                return (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-foreground">
-                      {getLabel(block)}
-                    </label>
-                    <select
-                      multiple
-                      className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
-                    >
                       {(block.options || []).map((option, index) => (
                         <option key={index} value={option}>
                           {option}

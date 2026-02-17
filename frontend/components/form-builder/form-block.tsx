@@ -932,62 +932,6 @@ export function FormBlockComponent({
             {renderRequiredToggle()}
           </div>
         );
-      case "multi-select":
-        return (
-          <div className="w-full">
-            {renderEditableLabel(
-              "Question",
-              "Multi-select question",
-              labelBaseClass.replace("mb-2", "mb-3"),
-            )}
-            <div className="flex flex-col gap-2">
-              {(block.options || []).map((option, i) => (
-                <div key={i} className="flex items-center gap-2 group/option">
-                  <div className="w-4 h-4 rounded-sm border-2 border-muted-foreground/40 shrink-0 flex items-center justify-center">
-                    <svg
-                      width="10"
-                      height="10"
-                      viewBox="0 0 10 10"
-                      className="text-muted-foreground/40"
-                    >
-                      <path
-                        d="M1 5L4 8L9 2"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    value={option}
-                    onChange={(e) => handleOptionChange(i, e.target.value)}
-                    className="text-sm text-foreground bg-transparent outline-none flex-1"
-                  />
-                  {(block.options?.length || 0) > 1 && (
-                    <button
-                      onClick={() => removeOption(i)}
-                      className="text-muted-foreground hover:text-destructive p-0.5 opacity-0 group-hover/option:opacity-100 transition-opacity"
-                      aria-label={`Remove option ${i + 1}`}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button
-                onClick={addOption}
-                className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 mt-1"
-              >
-                <Plus className="h-3 w-3" />
-                Add option
-              </button>
-            </div>
-            {renderRequiredToggle()}
-          </div>
-        );
       case "linear-scale":
         return (
           <div className="w-full">

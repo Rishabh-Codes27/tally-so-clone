@@ -29,8 +29,7 @@ function createBlock(type: BlockType): FormBlock {
   if (
     type === "multiple-choice" ||
     type === "checkboxes" ||
-    type === "dropdown" ||
-    type === "multi-select"
+    type === "dropdown"
   ) {
     base.options = ["Option 1", "Option 2", "Option 3"];
   }

@@ -247,13 +247,6 @@ export const TEMPLATES: Template[] = [
       },
       {
         id: generateId(),
-        type: "multi-select",
-        content: "Multi-select Dropdown",
-        options: ["Select A", "Select B", "Select C", "Select D"],
-        required: true,
-      },
-      {
-        id: generateId(),
         type: "heading1",
         content: "📊 Scales & Matrix",
       },

@@ -45,7 +45,6 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   "multiple-choice": CircleCheck,
   checkboxes: SquareCheck,
   dropdown: ChevronDown,
-  "multi-select": CheckCheck,
   number: Hash,
   email: AtSign,
   phone: Phone,

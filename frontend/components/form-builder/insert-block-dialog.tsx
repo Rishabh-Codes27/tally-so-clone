@@ -228,15 +228,6 @@ export function InsertBlockDialog({
             </div>
           </div>
         );
-      case "multi-select":
-        return (
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium">Multi-select</label>
-            <div className="border border-border rounded-md px-3 py-2 text-xs text-muted-foreground">
-              Select multiple
-            </div>
-          </div>
-        );
       case "linear-scale":
         return (
           <fieldset className="flex items-center gap-3 text-xs">

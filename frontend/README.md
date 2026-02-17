@@ -102,9 +102,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - Email, Number, Phone, URL - Regex pattern validation
 - Date, Time - Format validation (YYYY-MM-DD, HH:MM)
 
-**Choice Fields (4)**
+**Choice Fields (3)**
 
-- Multiple Choice, Checkboxes, Dropdown, Multi-select - Options with selection logic
+- Multiple Choice, Checkboxes, Dropdown - Options with selection logic
 
 **Scale & Matrix (3)**
 
@@ -153,7 +153,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 #### Features
 
 - **Input Fields**: Text, Email, Phone, URL, Number, Date, Time
-- **Choices**: Multiple Choice, Checkboxes, Dropdown, Multi-select, Ranking
+- **Choices**: Multiple Choice, Checkboxes, Dropdown, Ranking
 - **Advanced**: File Upload, Matrix, Signature, Rating, Linear Scale
 - **Media**: Image, Video, Audio, Embed
 - **Display**: Text, Title, Label, Heading, Paragraph, Divider

@@ -121,7 +121,7 @@ def validate_submission(blocks: list[dict], data: dict) -> None:
             options = block.get("options") or []
             if not isinstance(value, str) or value not in options:
                 errors.append({"block_id": block_id, "message": "Select a valid option."})
-        elif block_type in {"checkboxes", "multi-select"}:
+        elif block_type in {"checkboxes"}:
             options = set(block.get("options") or [])
             if not isinstance(value, list) or not all(
                 isinstance(item, str) and item in options for item in value

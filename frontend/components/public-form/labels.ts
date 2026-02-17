@@ -19,7 +19,6 @@ const fallbackLabels: Record<FormBlock["type"], string> = {
   "multiple-choice": "Question",
   checkboxes: "Question",
   dropdown: "Question",
-  "multi-select": "Question",
   "linear-scale": "Question",
   matrix: "Question",
   rating: "Question",
