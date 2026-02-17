@@ -38,16 +38,29 @@ function isValidMediaSource(value: string) {
   return isValidUrl(value) || isValidDataImage(value);
 }
 
-function matchesAllowedType(fileType: string, allowed: string[]) {
+function matchesAllowedType(
+  fileType: string,
+  allowed: string[],
+  fileName?: string,
+) {
   if (allowed.length === 0) return true;
+  const lowerName = fileName?.toLowerCase() ?? "";
+  const ext = lowerName.includes(".") ? lowerName.split(".").pop() : "";
   return allowed.some((entry) => {
-    const normalized = entry.trim();
+    const normalized = entry.trim().toLowerCase();
     if (!normalized) return false;
     if (normalized.endsWith("/*")) {
       const prefix = normalized.slice(0, -1);
       return fileType.startsWith(prefix);
     }
-    return fileType === normalized;
+    if (normalized.includes("/")) {
+      return fileType === normalized;
+    }
+    if (!ext) return false;
+    if (normalized.startsWith(".")) {
+      return `.${ext}` === normalized;
+    }
+    return ext === normalized;
   });
 }
 
@@ -173,7 +186,7 @@ function validateBlock(block: FormBlock, value: unknown): string | null {
         return `File exceeds ${(block.fileMaxSizeMb ?? 0.5).toFixed(1)}MB limit.`;
       }
       const allowedTypes = block.fileAllowedTypes || [];
-      if (!matchesAllowedType(file.type, allowedTypes)) {
+      if (!matchesAllowedType(file.type, allowedTypes, file.name)) {
         return "File type not allowed.";
       }
       return null;

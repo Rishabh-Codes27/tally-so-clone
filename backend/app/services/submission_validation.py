@@ -30,18 +30,31 @@ def _is_valid_url(value: str) -> bool:
         return False
 
 
-def _matches_allowed_type(file_type: str, allowed: list[str]) -> bool:
+def _matches_allowed_type(file_type: str, allowed: list[str], file_name: str | None) -> bool:
     if not allowed:
         return True
+    lower_name = (file_name or "").lower()
+    ext = lower_name.split(".")[-1] if "." in lower_name else ""
     for entry in allowed:
-        normalized = entry.strip()
+        normalized = entry.strip().lower()
         if not normalized:
             continue
         if normalized.endswith("/*"):
             prefix = normalized[:-1]
             if file_type.startswith(prefix):
                 return True
-        if file_type == normalized:
+            continue
+        if "/" in normalized:
+            if file_type == normalized:
+                return True
+            continue
+        if not ext:
+            continue
+        if normalized.startswith("."):
+            if f".{ext}" == normalized:
+                return True
+            continue
+        if ext == normalized:
             return True
     return False
 
@@ -173,7 +186,7 @@ def validate_submission(blocks: list[dict], data: dict) -> None:
                 errors.append({"block_id": block_id, "message": "File exceeds size limit."})
                 continue
             allowed = block.get("fileAllowedTypes") or []
-            if not _matches_allowed_type(file_type, allowed):
+            if not _matches_allowed_type(file_type, allowed, file_name):
                 errors.append({"block_id": block_id, "message": "File type not allowed."})
         elif block_type == "signature":
             if not isinstance(value, str) or not value.startswith("data:image/"):

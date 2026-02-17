@@ -836,6 +836,17 @@ export function PublicFormFields({
               reader.readAsDataURL(file);
             };
 
+            const acceptTypes = (block.fileAllowedTypes || [])
+              .map((entry) => {
+                const trimmed = entry.trim();
+                if (!trimmed) return "";
+                if (trimmed.includes("/")) return trimmed;
+                if (trimmed.startsWith(".")) return trimmed;
+                return `.${trimmed}`;
+              })
+              .filter(Boolean)
+              .join(",");
+
             const [isDragOver, setIsDragOver] = useState(false);
             const fileInputRef = useRef<HTMLInputElement>(null);
             const currentFile = answers[block.id] as
@@ -895,7 +906,7 @@ export function PublicFormFields({
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept={(block.fileAllowedTypes || []).join(",")}
+                    accept={acceptTypes}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleFileSelect(file);
