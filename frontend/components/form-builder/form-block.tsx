@@ -302,16 +302,12 @@ export function FormBlockComponent({
         <span>Max size (MB)</span>
         <input
           type="number"
-          min={0.1}
-          step={0.1}
-          value={block.fileMaxSizeMb ?? 2}
-          onChange={(e) =>
-            onUpdate({
-              ...block,
-              fileMaxSizeMb: Number(e.target.value || 2),
-            })
-          }
-          className="border border-border/60 rounded-md px-2 py-1 w-28 bg-transparent text-foreground"
+          min={1}
+          max={1}
+          step={1}
+          value={1}
+          disabled
+          className="border border-border/60 rounded-md px-2 py-1 w-28 bg-transparent text-foreground opacity-60 cursor-not-allowed"
         />
       </label>
       <label className="flex flex-col gap-1">

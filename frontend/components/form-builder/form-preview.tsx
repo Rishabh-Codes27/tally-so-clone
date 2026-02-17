@@ -610,9 +610,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                       {getLabel(block)}
                     </label>
                     <input type="file" className="text-sm text-foreground" />
-                    <div className="text-xs text-muted-foreground">
-                      Max {block.fileMaxSizeMb ?? 2}MB
-                    </div>
+                    <div className="text-xs text-muted-foreground">Max 1MB</div>
                   </div>
                 );
               case "video":

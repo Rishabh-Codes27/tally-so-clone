@@ -180,8 +180,7 @@ def validate_submission(blocks: list[dict], data: dict) -> None:
             if not file_name or not file_type or not file_data or not isinstance(file_data, str):
                 errors.append({"block_id": block_id, "message": "Upload a valid file."})
                 continue
-            max_size_mb = float(block.get("fileMaxSizeMb", 0.5))
-            max_bytes = max_size_mb * 1024 * 1024
+            max_bytes = 1 * 1024 * 1024
             if isinstance(file_size, (int, float)) and file_size > max_bytes:
                 errors.append({"block_id": block_id, "message": "File exceeds size limit."})
                 continue

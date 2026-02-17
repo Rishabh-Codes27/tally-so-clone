@@ -21,6 +21,7 @@ interface NavbarProps {
   isPublishing: boolean;
   shareUrl: string | null;
   responsesUrl: string | null;
+  publishLabel?: string;
 }
 
 export function Navbar({
@@ -31,6 +32,7 @@ export function Navbar({
   isPublishing,
   shareUrl,
   responsesUrl,
+  publishLabel = "Publish",
 }: NavbarProps) {
   const [hasToken, setHasToken] = useState(false);
 
@@ -169,7 +171,7 @@ export function Navbar({
           disabled={isPublishing}
           className="px-4 py-1.5 text-[11px] font-semibold text-primary-foreground bg-primary hover:bg-primary/90 rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed sm:text-sm"
         >
-          {isPublishing ? "Publishing..." : "Publish"}
+          {isPublishing ? "Publishing..." : publishLabel}
         </button>
       </div>
     </header>

@@ -11,6 +11,7 @@ import {
   Trash2,
   ExternalLink,
   BarChart3,
+  Pencil,
 } from "lucide-react";
 
 type FormRow = {
@@ -156,6 +157,13 @@ export default function AllFormsPage() {
 
                   {/* Actions */}
                   <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                    <Link
+                      href={`/builder?formId=${form.id}`}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Edit
+                    </Link>
                     <Link
                       href={`/responses/${form.id}`}
                       className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"

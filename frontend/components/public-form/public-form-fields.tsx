@@ -809,11 +809,11 @@ export function PublicFormFields({
             );
           case "file-upload": {
             const handleFileSelect = (file: File) => {
-              const maxBytes = (block.fileMaxSizeMb ?? 0.5) * 1024 * 1024;
+              const maxBytes = 1 * 1024 * 1024;
               if (file.size > maxBytes) {
                 setFileErrors((prev) => ({
                   ...prev,
-                  [block.id]: `File exceeds ${(block.fileMaxSizeMb ?? 0.5).toFixed(1)}MB limit.`,
+                  [block.id]: "File exceeds 1.0MB limit.",
                 }));
                 return;
               }
@@ -920,15 +920,10 @@ export function PublicFormFields({
                   >
                     Choose file
                   </button>
-                  {(block.fileMaxSizeMb || block.fileAllowedTypes?.length) && (
+                  {(block.fileAllowedTypes?.length || true) && (
                     <p className="text-xs text-muted-foreground">
-                      {block.fileMaxSizeMb && (
-                        <span>
-                          Max size: {block.fileMaxSizeMb.toFixed(1)}MB
-                        </span>
-                      )}
-                      {block.fileMaxSizeMb &&
-                        block.fileAllowedTypes?.length && <span> • </span>}
+                      <span>Max size: 1.0MB</span>
+                      {block.fileAllowedTypes?.length && <span> • </span>}
                       {block.fileAllowedTypes?.length && (
                         <span>
                           {block.fileAllowedTypes.slice(0, 2).join(", ")}

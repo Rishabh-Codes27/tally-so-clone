@@ -16,6 +16,11 @@ type FormResponse = {
   updated_at: string;
 };
 
+type FormUpdatePayload = {
+  title?: string;
+  blocks?: FormBlock[];
+};
+
 type SubmissionCreatePayload = {
   data: Record<string, unknown>;
 };
@@ -167,6 +172,15 @@ export async function listFormSubmissions(formId: number) {
 export async function getFormById(formId: number) {
   const res = await fetch(`${API_BASE}/forms/${formId}`, {
     headers: { ...authHeaders() },
+  });
+  return handleJson<FormResponse>(res);
+}
+
+export async function updateForm(formId: number, payload: FormUpdatePayload) {
+  const res = await fetch(`${API_BASE}/forms/${formId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(payload),
   });
   return handleJson<FormResponse>(res);
 }

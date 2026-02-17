@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { FormBuilder } from "@/components/form-builder/form-builder";
+import type { FormBlock } from "@/components/form-builder/types";
 import { Navbar } from "@/components/form-builder/navbar";
 import { Space_Grotesk } from "next/font/google";
 import {
@@ -20,6 +21,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { TEMPLATES } from "@/lib/templates";
+import { getFormById } from "@/lib/api";
 
 const displayFont = Space_Grotesk({
   subsets: ["latin"],
@@ -29,10 +31,37 @@ const displayFont = Space_Grotesk({
 export function BuilderPageClient() {
   const searchParams = useSearchParams();
   const viewParam = searchParams.get("view");
+  const formIdParam = searchParams.get("formId");
+  const formId = useMemo(
+    () => (formIdParam ? Number(formIdParam) : null),
+    [formIdParam],
+  );
   const [started, setStarted] = useState(false);
   const [showTemplates, setShowTemplates] = useState(viewParam === "templates");
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
+  const [editingForm, setEditingForm] = useState<{
+    id: number;
+    title: string;
+    blocks: FormBlock[];
+    share_id: string;
+  } | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!formId || Number.isNaN(formId)) return;
+    setEditLoading(true);
+    setEditError(null);
+    getFormById(formId)
+      .then((form) => {
+        setEditingForm(form);
+      })
+      .catch((error) => {
+        setEditError(error instanceof Error ? error.message : "Load failed");
+      })
+      .finally(() => setEditLoading(false));
+  }, [formId]);
 
   useEffect(() => {
     if (started || showTemplates) return;
@@ -45,6 +74,39 @@ export function BuilderPageClient() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [started, showTemplates]);
+
+  if (formId) {
+    if (editLoading) {
+      return <div className="min-h-screen bg-background" />;
+    }
+    if (editError) {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center px-6">
+          <div className="text-sm text-destructive">{editError}</div>
+        </div>
+      );
+    }
+    if (editingForm) {
+      const shareUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/s/${editingForm.share_id}`
+          : null;
+      const responsesUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/responses/${editingForm.id}`
+          : null;
+      return (
+        <FormBuilder
+          initialTitle={editingForm.title}
+          initialBlocks={editingForm.blocks}
+          autoFocusFirstBlock={true}
+          formId={editingForm.id}
+          initialShareUrl={shareUrl}
+          initialResponsesUrl={responsesUrl}
+        />
+      );
+    }
+  }
 
   if (selectedTemplate !== null) {
     const template = TEMPLATES[selectedTemplate];
@@ -72,6 +134,7 @@ export function BuilderPageClient() {
           isPublishing={false}
           shareUrl={null}
           responsesUrl={null}
+          publishLabel="Publish"
         />
         <main className="mx-auto flex max-w-6xl flex-col px-6 pt-12">
           <button
@@ -124,6 +187,7 @@ export function BuilderPageClient() {
         isPublishing={false}
         shareUrl={null}
         responsesUrl={null}
+        publishLabel="Publish"
       />
 
       <main className="mx-auto flex max-w-3xl flex-col items-center px-6 pt-24 text-center">

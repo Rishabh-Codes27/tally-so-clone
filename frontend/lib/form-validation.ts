@@ -181,9 +181,9 @@ function validateBlock(block: FormBlock, value: unknown): string | null {
       if (!file.name || !file.type || !file.data) {
         return "Upload a valid file.";
       }
-      const maxBytes = (block.fileMaxSizeMb ?? 0.5) * 1024 * 1024;
+      const maxBytes = 1 * 1024 * 1024;
       if (file.size && file.size > maxBytes) {
-        return `File exceeds ${(block.fileMaxSizeMb ?? 0.5).toFixed(1)}MB limit.`;
+        return "File exceeds 1.0MB limit.";
       }
       const allowedTypes = block.fileAllowedTypes || [];
       if (!matchesAllowedType(file.type, allowedTypes, file.name)) {

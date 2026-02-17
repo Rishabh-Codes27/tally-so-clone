@@ -8,7 +8,7 @@ import { InsertBlockDialog } from "./insert-block-dialog";
 import type { FormBlock, BlockType } from "./types";
 import { HelpCircle, ImagePlus, Image, SlidersHorizontal } from "lucide-react";
 import { Space_Grotesk } from "next/font/google";
-import { createForm } from "@/lib/api";
+import { createForm, updateForm } from "@/lib/api";
 
 const builderFont = Space_Grotesk({
   subsets: ["latin"],
@@ -60,7 +60,7 @@ function createBlock(type: BlockType): FormBlock {
   }
 
   if (type === "file-upload") {
-    base.fileMaxSizeMb = 0.5;
+    base.fileMaxSizeMb = 1;
   }
 
   if (type === "payment") {
@@ -76,12 +76,18 @@ interface FormBuilderProps {
   initialTitle?: string;
   autoFocusFirstBlock?: boolean;
   initialBlocks?: FormBlock[];
+  formId?: number;
+  initialShareUrl?: string | null;
+  initialResponsesUrl?: string | null;
 }
 
 export function FormBuilder({
   initialTitle = "",
   autoFocusFirstBlock = false,
   initialBlocks,
+  formId,
+  initialShareUrl = null,
+  initialResponsesUrl = null,
 }: FormBuilderProps) {
   const [formTitle, setFormTitle] = useState(initialTitle);
   const [blocks, setBlocks] = useState<FormBlock[]>(
@@ -94,8 +100,10 @@ export function FormBuilder({
   );
   const [isPreview, setIsPreview] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [shareUrl, setShareUrl] = useState<string | null>(null);
-  const [responsesUrl, setResponsesUrl] = useState<string | null>(null);
+  const [shareUrl, setShareUrl] = useState<string | null>(initialShareUrl);
+  const [responsesUrl, setResponsesUrl] = useState<string | null>(
+    initialResponsesUrl,
+  );
   const [publishError, setPublishError] = useState<string | null>(null);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
@@ -210,13 +218,18 @@ export function FormBuilder({
   }, [blocks]);
 
   const handlePublish = useCallback(async () => {
+    if (formId) {
+      const confirmed = confirm(
+        "Update this published form? Changes will go live after you confirm.",
+      );
+      if (!confirmed) return;
+    }
     setIsPublishing(true);
     setPublishError(null);
     try {
-      const response = await createForm({
-        title: formTitle,
-        blocks,
-      });
+      const response = formId
+        ? await updateForm(formId, { title: formTitle, blocks })
+        : await createForm({ title: formTitle, blocks });
       const frontendShareUrl =
         typeof window !== "undefined"
           ? `${window.location.origin}/s/${response.share_id}`
@@ -237,7 +250,7 @@ export function FormBuilder({
     } finally {
       setIsPublishing(false);
     }
-  }, [blocks, formTitle]);
+  }, [blocks, formId, formTitle]);
 
   return (
     <div
@@ -251,6 +264,7 @@ export function FormBuilder({
         isPublishing={isPublishing}
         shareUrl={shareUrl}
         responsesUrl={responsesUrl}
+        publishLabel={formId ? "Update" : "Publish"}
       />
 
       <main className="flex-1 overflow-y-auto" data-scroll-container="true">
