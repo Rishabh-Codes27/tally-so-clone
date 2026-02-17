@@ -347,6 +347,7 @@ export function FormBuilder({
                     handleDragOver(index);
                   }}
                   onDragEnd={handleDragEnd}
+                  allBlocks={blocks}
                 />
               ))}
             </div>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import type { FormBlock } from "@/components/form-builder/types";
 import { getLabel } from "./labels";
+import { shouldShowBlock, shouldBeRequired } from "@/lib/conditional-logic";
 import PhoneInput, {
   getCountries,
   getCountryCallingCode,
@@ -20,6 +21,28 @@ interface PublicFormFieldsProps {
   errors?: Record<string, string>;
 }
 
+function getApplicableConditionalRules(
+  blockIndex: number,
+  blocks: FormBlock[],
+): FormBlock[] {
+  // Find all conditional-logic blocks that appear before this block
+  const applicableLogicBlocks: FormBlock[] = [];
+  for (let i = blockIndex - 1; i >= 0; i--) {
+    if (blocks[i].type === "conditional-logic") {
+      applicableLogicBlocks.push(blocks[i]);
+      // Keep going to find all conditional-logic blocks before this one
+      // (they may all apply, or we stop at the most recent one)
+    } else if (
+      blocks[i].type === "new-page" ||
+      blocks[i].type === "page-break"
+    ) {
+      // Stop at page breaks - conditional logic doesn't cross pages
+      break;
+    }
+  }
+  return applicableLogicBlocks.reverse(); // Return in chronological order
+}
+
 function SignaturePad({
   value,
   onChange,
@@ -30,17 +53,30 @@ function SignaturePad({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
+  const getCoordinates = (
+    e: ReactPointerEvent<HTMLCanvasElement>,
+  ): [number, number] => {
+    const canvas = canvasRef.current;
+    if (!canvas) return [0, 0];
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    return [x, y];
+  };
+
   const startDrawing = (e: ReactPointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const rect = canvas.getBoundingClientRect();
+    const [x, y] = getCoordinates(e);
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
     ctx.strokeStyle = "#111827";
     ctx.beginPath();
-    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.moveTo(x, y);
     setIsDrawing(true);
   };
 
@@ -50,8 +86,8 @@ function SignaturePad({
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const rect = canvas.getBoundingClientRect();
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    const [x, y] = getCoordinates(e);
+    ctx.lineTo(x, y);
     ctx.stroke();
   };
 
@@ -293,9 +329,35 @@ export function PublicFormFields({
 
   return (
     <div className="flex flex-col gap-6">
-      {blocks.map((block) => {
+      {blocks.map((block, blockIndex) => {
+        // Skip rendering the conditional-logic block itself
+        if (block.type === "conditional-logic") {
+          return null;
+        }
+
+        // Get conditional rules from preceding conditional-logic blocks
+        const conditionalLogicBlocks = getApplicableConditionalRules(
+          blockIndex,
+          blocks,
+        );
+        const allRules = [
+          ...conditionalLogicBlocks.flatMap((b) => b.conditionalRules || []),
+          ...(block.conditionalRules || []),
+        ];
+
+        // Check if block should be shown based on conditional logic
+        if (
+          !shouldShowBlock(allRules.length > 0 ? allRules : undefined, answers)
+        ) {
+          return null;
+        }
+
         const error =
           errorMap[block.id] ?? inputErrors[block.id] ?? fileErrors[block.id];
+        const isRequired =
+          block.required ||
+          shouldBeRequired(allRules.length > 0 ? allRules : undefined, answers);
+
         switch (block.type) {
           case "text":
             return block.content?.trim() ? (
@@ -1049,7 +1111,6 @@ export function PublicFormFields({
               </div>
             );
           case "hidden-field":
-          case "conditional-logic":
           case "calculated-field":
           case "thank-you-page":
             return null;

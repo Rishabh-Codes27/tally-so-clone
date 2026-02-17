@@ -1,7 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  useRef,
+  useMemo,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import type { FormBlock } from "./types";
+import { shouldShowBlock, shouldBeRequired } from "@/lib/conditional-logic";
 import PhoneInput, {
   getCountries,
   getCountryCallingCode,
@@ -67,6 +73,26 @@ function getLabel(block: FormBlock) {
   return content || fallbackLabels[block.type];
 }
 
+function getApplicableConditionalRules(
+  blockIndex: number,
+  blocks: FormBlock[],
+): FormBlock[] {
+  // Find all conditional-logic blocks that appear before this block
+  const applicableLogicBlocks: FormBlock[] = [];
+  for (let i = blockIndex - 1; i >= 0; i--) {
+    if (blocks[i].type === "conditional-logic") {
+      applicableLogicBlocks.push(blocks[i]);
+    } else if (
+      blocks[i].type === "new-page" ||
+      blocks[i].type === "page-break"
+    ) {
+      // Stop at page breaks - conditional logic doesn't cross pages
+      break;
+    }
+  }
+  return applicableLogicBlocks.reverse(); // Return in chronological order
+}
+
 export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
   const defaultCountry = useMemo<Country | undefined>(() => {
     if (typeof navigator === "undefined") return undefined;
@@ -93,6 +119,9 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
     Record<string, Country | undefined>
   >({});
   const [inputErrors, setInputErrors] = useState<Record<string, string>>({});
+  const [signatures, setSignatures] = useState<Record<string, string>>({});
+  const [isDrawing, setIsDrawing] = useState<Record<string, boolean>>({});
+  const canvasRefs = useRef<Record<string, HTMLCanvasElement | null>>({});
 
   const setInputError = (
     blockId: string,
@@ -177,6 +206,69 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
     setInputValues((prev) => ({ ...prev, [blockId]: normalized }));
   };
 
+  const getSignatureCoordinates = (
+    e: ReactPointerEvent<HTMLCanvasElement>,
+  ): [number, number] => {
+    const canvas = e.currentTarget;
+    if (!canvas) return [0, 0];
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    return [x, y];
+  };
+
+  const handleSignatureStart = (
+    blockId: string,
+    e: ReactPointerEvent<HTMLCanvasElement>,
+  ) => {
+    const canvas = canvasRefs.current[blockId];
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const [x, y] = getSignatureCoordinates(e);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#111827";
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    setIsDrawing((prev) => ({ ...prev, [blockId]: true }));
+  };
+
+  const handleSignatureDraw = (
+    blockId: string,
+    e: ReactPointerEvent<HTMLCanvasElement>,
+  ) => {
+    if (!isDrawing[blockId]) return;
+    const canvas = canvasRefs.current[blockId];
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const [x, y] = getSignatureCoordinates(e);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const handleSignatureEnd = (blockId: string) => {
+    const canvas = canvasRefs.current[blockId];
+    if (!canvas) return;
+    setIsDrawing((prev) => ({ ...prev, [blockId]: false }));
+    setSignatures((prev) => ({
+      ...prev,
+      [blockId]: canvas.toDataURL("image/png"),
+    }));
+  };
+
+  const handleSignatureClear = (blockId: string) => {
+    const canvas = canvasRefs.current[blockId];
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setSignatures((prev) => ({ ...prev, [blockId]: "" }));
+  };
+
   return (
     <div className="max-w-[640px] mx-auto px-5 sm:px-6 py-14">
       <div className="mb-10 text-center">
@@ -185,7 +277,39 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
         </h1>
       </div>
       <div className="flex flex-col gap-6">
-        {blocks.map((block) => {
+        {blocks.map((block, blockIndex) => {
+          // Skip rendering the conditional-logic block itself
+          if (block.type === "conditional-logic") {
+            return null;
+          }
+
+          // Get conditional rules from preceding conditional-logic blocks
+          const conditionalLogicBlocks = getApplicableConditionalRules(
+            blockIndex,
+            blocks,
+          );
+          const allRules = [
+            ...conditionalLogicBlocks.flatMap((b) => b.conditionalRules || []),
+            ...(block.conditionalRules || []),
+          ];
+
+          // Check if block should be shown based on conditional logic
+          if (
+            !shouldShowBlock(
+              allRules.length > 0 ? allRules : undefined,
+              inputValues,
+            )
+          ) {
+            return null;
+          }
+
+          const isRequired =
+            block.required ||
+            shouldBeRequired(
+              allRules.length > 0 ? allRules : undefined,
+              inputValues,
+            );
+
           const content = (() => {
             switch (block.type) {
               case "text":
@@ -556,11 +680,35 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     <label className="text-sm font-medium text-foreground">
                       {getLabel(block)}
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Type your name"
-                      className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
-                    />
+                    <div className="flex flex-col gap-2">
+                      <canvas
+                        ref={(el) => {
+                          if (el) canvasRefs.current[block.id] = el;
+                        }}
+                        width={520}
+                        height={140}
+                        className="w-full rounded-md border border-border bg-background cursor-crosshair"
+                        style={{ maxWidth: "100%" }}
+                        onPointerDown={(e) => handleSignatureStart(block.id, e)}
+                        onPointerMove={(e) => handleSignatureDraw(block.id, e)}
+                        onPointerUp={() => handleSignatureEnd(block.id)}
+                        onPointerLeave={() => handleSignatureEnd(block.id)}
+                      />
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>
+                          {signatures[block.id]
+                            ? "Signature captured"
+                            : "Draw your signature"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleSignatureClear(block.id)}
+                          className="text-primary cursor-pointer hover:underline"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 );
               case "ranking":
@@ -663,7 +811,6 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     </div>
                   </div>
                 );
-              case "conditional-logic":
               case "calculated-field":
               case "hidden-field":
               case "recaptcha":

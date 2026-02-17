@@ -40,6 +40,31 @@ export type BlockType =
   | "recaptcha"
   | "respondent-country";
 
+export type ConditionOperator =
+  | "equals"
+  | "not_equals"
+  | "contains"
+  | "not_contains"
+  | "greater_than"
+  | "less_than"
+  | "greater_or_equal"
+  | "less_or_equal"
+  | "is_empty"
+  | "is_not_empty"
+  | "starts_with"
+  | "ends_with";
+
+export type ConditionalAction = "show" | "hide" | "require" | "optional";
+
+export interface ConditionalRule {
+  id: string;
+  fieldId: string;
+  operator: ConditionOperator;
+  value: string;
+  action: ConditionalAction;
+  targetBlockId?: string;
+}
+
 export interface FormBlock {
   id: string;
   type: BlockType;
@@ -60,6 +85,7 @@ export interface FormBlock {
   paymentAmount?: number;
   paymentCurrency?: string;
   paymentDescription?: string;
+  conditionalRules?: ConditionalRule[];
 }
 
 export interface SlashCommandItem {

@@ -8,8 +8,15 @@ import {
   Star,
   CreditCard,
   Wallet,
+  ChevronDown,
 } from "lucide-react";
-import type { FormBlock, BlockType } from "./types";
+import type {
+  FormBlock,
+  BlockType,
+  ConditionalRule,
+  ConditionOperator,
+  ConditionalAction,
+} from "./types";
 import { SlashCommandMenu } from "./slash-command-menu";
 
 interface FormBlockProps {
@@ -24,6 +31,7 @@ interface FormBlockProps {
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragEnd: () => void;
+  allBlocks?: FormBlock[];
 }
 
 export function FormBlockComponent({
@@ -38,6 +46,7 @@ export function FormBlockComponent({
   onDragStart,
   onDragOver,
   onDragEnd,
+  allBlocks = [],
 }: FormBlockProps) {
   const textInputRef = useRef<HTMLDivElement>(null);
   const labelInputRef = useRef<HTMLDivElement>(null);
@@ -379,6 +388,196 @@ export function FormBlockComponent({
       </label>
     </div>
   );
+
+  const getFieldLabel = (fieldId: string): string => {
+    const field = allBlocks.find((b) => b.id === fieldId);
+    if (!field) return "Unknown";
+    const type = field.type;
+    const content = field.content?.trim() || type;
+    return `${content}`;
+  };
+
+  const renderConditionalLogic = () => {
+    const rules = block.conditionalRules || [];
+    const fieldOptions = allBlocks.filter(
+      (b) =>
+        ![
+          "text",
+          "title",
+          "label",
+          "heading1",
+          "heading2",
+          "heading3",
+          "paragraph",
+          "divider",
+          "page-break",
+          "new-page",
+          "thank-you-page",
+          "conditional-logic",
+          "image",
+          "video",
+          "audio",
+          "embed",
+        ].includes(b.type) && b.id !== block.id,
+    );
+
+    const operators: { value: ConditionOperator; label: string }[] = [
+      { value: "equals", label: "Equals" },
+      { value: "not_equals", label: "Not equals" },
+      { value: "contains", label: "Contains" },
+      { value: "not_contains", label: "Doesn't contain" },
+      { value: "greater_than", label: "Greater than" },
+      { value: "less_than", label: "Less than" },
+      { value: "greater_or_equal", label: "≥" },
+      { value: "less_or_equal", label: "≤" },
+      { value: "is_empty", label: "Is empty" },
+      { value: "is_not_empty", label: "Is not empty" },
+      { value: "starts_with", label: "Starts with" },
+      { value: "ends_with", label: "Ends with" },
+    ];
+
+    const actions: { value: ConditionalAction; label: string }[] = [
+      { value: "show", label: "Show block" },
+      { value: "hide", label: "Hide block" },
+      { value: "require", label: "Make required" },
+      { value: "optional", label: "Make optional" },
+    ];
+
+    const addRule = () => {
+      const newRule: ConditionalRule = {
+        id: Math.random().toString(36).slice(2, 10),
+        fieldId: fieldOptions[0]?.id || "",
+        operator: "equals",
+        value: "",
+        action: "show",
+      };
+      onUpdate({
+        ...block,
+        conditionalRules: [...rules, newRule],
+      });
+    };
+
+    const updateRule = (index: number, updates: Partial<ConditionalRule>) => {
+      const updatedRules = [...rules];
+      updatedRules[index] = { ...updatedRules[index], ...updates };
+      onUpdate({
+        ...block,
+        conditionalRules: updatedRules,
+      });
+    };
+
+    const deleteRule = (index: number) => {
+      const updatedRules = rules.filter((_, i) => i !== index);
+      onUpdate({
+        ...block,
+        conditionalRules: updatedRules,
+      });
+    };
+
+    return (
+      <div className="mt-4 pt-4 border-t border-border/40">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <span>Conditional logic</span>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              title="Learn about conditional logic"
+            >
+              <span className="text-base leading-none">ⓘ</span>
+            </a>
+          </div>
+        </div>
+
+        {rules.map((rule, index) => (
+          <div key={rule.id} className="mb-3 p-3 bg-muted/20 rounded-md">
+            <div className="flex gap-2 mb-2 flex-wrap items-end">
+              <div className="text-xs font-medium text-muted-foreground">
+                When
+              </div>
+              <select
+                value={rule.fieldId}
+                onChange={(e) => updateRule(index, { fieldId: e.target.value })}
+                className="border border-border/60 rounded px-2 py-1 text-xs bg-transparent text-foreground"
+              >
+                {fieldOptions.map((field) => (
+                  <option key={field.id} value={field.id}>
+                    {getFieldLabel(field.id)}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={rule.operator}
+                onChange={(e) =>
+                  updateRule(index, {
+                    operator: e.target.value as ConditionOperator,
+                  })
+                }
+                className="border border-border/60 rounded px-2 py-1 text-xs bg-transparent text-foreground"
+              >
+                {operators.map((op) => (
+                  <option key={op.value} value={op.value}>
+                    {op.label}
+                  </option>
+                ))}
+              </select>
+
+              {!["is_empty", "is_not_empty"].includes(rule.operator) && (
+                <input
+                  type="text"
+                  value={rule.value}
+                  onChange={(e) => updateRule(index, { value: e.target.value })}
+                  placeholder="Value"
+                  className="border border-border/60 rounded px-2 py-1 text-xs bg-transparent text-foreground placeholder:text-muted-foreground/50 flex-1 min-w-[100px]"
+                />
+              )}
+            </div>
+
+            <div className="flex gap-2 items-end">
+              <div className="text-xs font-medium text-muted-foreground">
+                Then
+              </div>
+              <select
+                value={rule.action}
+                onChange={(e) =>
+                  updateRule(index, {
+                    action: e.target.value as ConditionalAction,
+                  })
+                }
+                className="border border-border/60 rounded px-2 py-1 text-xs bg-transparent text-foreground flex-1"
+              >
+                {actions.map((action) => (
+                  <option key={action.value} value={action.value}>
+                    {action.label}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                onClick={() => deleteRule(index)}
+                className="p-1 text-muted-foreground hover:text-destructive transition-colors"
+                title="Delete rule"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ))}
+
+        <button
+          onClick={addRule}
+          className="mt-2 inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Add condition
+        </button>
+      </div>
+    );
+  };
 
   const renderUrlSetting = (label: string) => (
     <label className="mt-3 flex flex-col gap-1 text-xs text-muted-foreground">
@@ -1105,8 +1304,21 @@ export function FormBlockComponent({
         );
       case "conditional-logic":
         return (
-          <div className="w-full text-sm text-muted-foreground">
-            Conditional logic will be configured in a future step.
+          <div className="w-full">
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
+              <span>🔀 Conditional Logic</span>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                }}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                title="Conditional logic guides respondents through dynamic form paths"
+              >
+                <span className="text-base leading-none">ⓘ</span>
+              </a>
+            </div>
+            {renderConditionalLogic()}
           </div>
         );
       case "calculated-field":
