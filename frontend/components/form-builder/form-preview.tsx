@@ -767,37 +767,21 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     <label className="text-sm font-medium text-foreground">
                       {getLabel(block)}
                     </label>
-                    <input
-                      type="url"
-                      placeholder="https://"
-                      className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
-                    />
-                  </div>
-                );
-              case "audio":
-                return (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-foreground">
-                      {getLabel(block)}
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://"
-                      className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
-                    />
-                  </div>
-                );
-              case "embed":
-                return (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-foreground">
-                      {getLabel(block)}
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://"
-                      className="border border-border rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
-                    />
+                    {block.content ? (
+                      <video
+                        controls
+                        controlsList="nodownload"
+                        className="w-full rounded-md border border-border/40"
+                        style={{ maxHeight: "400px" }}
+                      >
+                        <source src={block.content} />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <div className="rounded-md border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                        Add a video URL in the builder to preview it here.
+                      </div>
+                    )}
                   </div>
                 );
               case "thank-you-page":
@@ -886,6 +870,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     {block.content ? (
                       <audio controls className="w-full">
                         <source src={block.content} />
+                        Your browser does not support the audio tag.
                       </audio>
                     ) : (
                       <div className="rounded-md border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
@@ -903,8 +888,11 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     {block.content ? (
                       <iframe
                         src={block.content}
-                        className="w-full min-h-[240px] rounded-md border border-border/40"
+                        className="w-full min-h-[400px] rounded-md border border-border/40"
                         title={getLabel(block)}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen
                       />
                     ) : (
                       <div className="rounded-md border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">

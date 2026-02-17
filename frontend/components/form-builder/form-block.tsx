@@ -579,7 +579,7 @@ export function FormBlockComponent({
     );
   };
 
-  const renderUrlSetting = (label: string) => (
+  const renderUrlSetting = (label: string, helperText?: string) => (
     <label className="mt-3 flex flex-col gap-1 text-xs text-muted-foreground">
       <span>{label}</span>
       <input
@@ -589,6 +589,9 @@ export function FormBlockComponent({
         placeholder="https://"
         className="border border-border/60 rounded-md px-2 py-1 bg-transparent text-foreground"
       />
+      {helperText && (
+        <span className="text-xs text-muted-foreground/70">{helperText}</span>
+      )}
     </label>
   );
 
@@ -1265,21 +1268,30 @@ export function FormBlockComponent({
         return (
           <div className="w-full">
             {renderEditableLabel("Video", "Video block")}
-            {renderUrlSetting("Video URL")}
+            {renderUrlSetting(
+              "Video URL",
+              "Direct video URL: .mp4, .webm, or .ogg file",
+            )}
           </div>
         );
       case "audio":
         return (
           <div className="w-full">
             {renderEditableLabel("Audio", "Audio block")}
-            {renderUrlSetting("Audio URL")}
+            {renderUrlSetting(
+              "Audio URL",
+              "Direct audio URL: .mp3, .wav, or .ogg file",
+            )}
           </div>
         );
       case "embed":
         return (
           <div className="w-full">
             {renderEditableLabel("Embed", "Embed block")}
-            {renderUrlSetting("Embed URL")}
+            {renderUrlSetting(
+              "Embed URL",
+              "Paste only the URL from the src attribute, e.g., https://www.youtube.com/embed/VIDEO_ID",
+            )}
           </div>
         );
       case "page-break":
