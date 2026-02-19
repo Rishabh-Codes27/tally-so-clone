@@ -36,3 +36,12 @@ def ensure_forms_user_id_column() -> None:
         if "user_id" not in columns:
             connection.execute(text("ALTER TABLE forms ADD COLUMN user_id INTEGER"))
             connection.commit()
+        if "logo_url" not in columns:
+            connection.execute(text("ALTER TABLE forms ADD COLUMN logo_url VARCHAR(512) DEFAULT ''"))
+            connection.commit()
+        if "cover_url" not in columns:
+            connection.execute(text("ALTER TABLE forms ADD COLUMN cover_url VARCHAR(512) DEFAULT ''"))
+            connection.commit()
+        if "cover_height" not in columns:
+            connection.execute(text("ALTER TABLE forms ADD COLUMN cover_height INTEGER DEFAULT 200"))
+            connection.commit()

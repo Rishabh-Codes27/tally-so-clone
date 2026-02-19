@@ -59,9 +59,14 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-bottom: 1px solid hsl(var(--border));
+  border-bottom: 1px solid #d1d5db;
   padding: 0.5rem 0;
   font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.phone-input:focus-within {
+  border-bottom-color: #111827;
 }
 
 .phone-input .PhoneInputCountrySelect {

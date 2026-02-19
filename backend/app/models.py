@@ -14,6 +14,9 @@ class Form(Base):
         ForeignKey("users.id"), index=True, nullable=True
     )
     title: Mapped[str] = mapped_column(String(255), default="")
+    logo_url: Mapped[str] = mapped_column(String(512), default="", nullable=True)
+    cover_url: Mapped[str] = mapped_column(String(512), default="", nullable=True)
+    cover_height: Mapped[int] = mapped_column(Integer, default=200)
     blocks: Mapped[list] = mapped_column(JSON, default=list)
     share_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     created_at: Mapped[datetime] = mapped_column(

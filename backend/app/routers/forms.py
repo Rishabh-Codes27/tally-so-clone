@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, status, UploadFile, File
 from sqlalchemy.orm import Session
-
+import os
+import uuid
 from ..db import get_db
 from ..models import User
 from ..routers.auth import get_current_user, get_optional_user
@@ -82,3 +83,92 @@ def list_submissions(
     db: Session = Depends(get_db),
 ) -> list[SubmissionOut]:
     return submission_service.list_submissions_for_form(db, form_id, current_user.id)
+
+
+@router.post("/{form_id}/logo")
+async def upload_form_logo(
+    form_id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Upload a logo for a form. Max file size: 1MB. Allowed types: PNG, JPG, GIF, SVG."""
+    # Validate file size (1MB max)
+    MAX_FILE_SIZE = 1 * 1024 * 1024  # 1MB
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    file.file.seek(0)
+    
+    if file_size > MAX_FILE_SIZE:
+        raise ValueError(f"File size exceeds maximum of 1MB")
+    
+    # Validate file type
+    allowed_types = {"image/png", "image/jpeg", "image/gif", "image/svg+xml"}
+    if file.content_type not in allowed_types:
+        raise ValueError(f"File type not allowed. Allowed types: PNG, JPG, GIF, SVG")
+    
+    # Create uploads directory if it doesn't exist
+    uploads_dir = "uploads"
+    os.makedirs(uploads_dir, exist_ok=True)
+    
+    # Generate unique filename
+    file_ext = os.path.splitext(file.filename)[1]
+    unique_filename = f"{uuid.uuid4()}{file_ext}"
+    file_path = os.path.join(uploads_dir, unique_filename)
+    
+    # Save file
+    contents = await file.read()
+    with open(file_path, "wb") as f:
+        f.write(contents)
+    
+    # Store the file path in the form
+    form = form_service.get_form_by_id(db, form_id, current_user.id)
+    form.logo_url = f"/uploads/{unique_filename}"
+    db.commit()
+    
+    return {"logo_url": form.logo_url}
+
+
+@router.post("/{form_id}/cover")
+async def upload_form_cover(
+    form_id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Upload a cover for a form. Max file size: 10MB. Allowed types: PNG, JPG, GIF, SVG."""
+    # Validate file size (10MB max)
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    file.file.seek(0)
+    
+    if file_size > MAX_FILE_SIZE:
+        raise ValueError(f"File size exceeds maximum of 10MB")
+    
+    # Validate file type
+    allowed_types = {"image/png", "image/jpeg", "image/gif", "image/svg+xml"}
+    if file.content_type not in allowed_types:
+        raise ValueError(f"File type not allowed. Allowed types: PNG, JPG, GIF, SVG")
+    
+    # Create uploads directory if it doesn't exist
+    uploads_dir = "uploads"
+    os.makedirs(uploads_dir, exist_ok=True)
+    
+    # Generate unique filename
+    file_ext = os.path.splitext(file.filename)[1]
+    unique_filename = f"{uuid.uuid4()}{file_ext}"
+    file_path = os.path.join(uploads_dir, unique_filename)
+    
+    # Save file
+    contents = await file.read()
+    with open(file_path, "wb") as f:
+        f.write(contents)
+    
+    # Store the file path in the form
+    form = form_service.get_form_by_id(db, form_id, current_user.id)
+    form.cover_url = f"/uploads/{unique_filename}"
+    db.commit()
+    
+    return {"cover_url": form.cover_url}
+

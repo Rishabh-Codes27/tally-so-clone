@@ -203,3 +203,15 @@ export async function deleteForm(formId: number) {
     throw new Error(message || "Failed to delete form");
   }
 }
+
+export async function uploadFile(file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE}/files/upload`, {
+    method: "POST",
+    headers: { ...authHeaders() },
+    body: formData,
+  });
+  return handleJson<{ url: string }>(res);
+}

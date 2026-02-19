@@ -41,96 +41,41 @@ export function Navbar({
   }, []);
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 border-b border-border bg-background md:h-12 md:flex-nowrap md:py-0">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
+    <header className="flex flex-wrap items-center justify-between gap-2 px-6 py-3 border-b border-gray-200 bg-white md:h-14 md:flex-nowrap md:py-0">
+      <div className="flex items-center gap-2 text-sm text-gray-600 min-w-0">
         <Link
           href={hasToken ? "/dashboard" : "/"}
           aria-label={hasToken ? "Go to dashboard" : "Go to home"}
-          className={`inline-flex items-center justify-center rounded-md p-1 transition-colors ${
-            hasToken ? "text-foreground" : "text-foreground hover:text-blue-600"
-          }`}
+          className="inline-flex items-center justify-center rounded-md p-1 transition-colors hover:text-gray-900"
         >
-          <FileText className="h-4 w-4" />
+          <span className="font-bold text-gray-900">⭐</span>
         </Link>
-        <ChevronRight className="h-3 w-3" />
-        <span className="text-foreground font-medium truncate">
+        <ChevronRight className="h-3 w-3 text-gray-400" />
+        <span className="text-gray-700 font-medium truncate">
           {formTitle || "Untitled"}
         </span>
       </div>
-      <div className="flex flex-wrap items-center gap-1 justify-end">
-        {shareUrl ? (
-          <button
-            onClick={() => {
-              if (!navigator?.clipboard?.writeText) {
-                toast({
-                  title: "Copy failed",
-                  description: "Clipboard is not available in this browser.",
-                });
-                return;
-              }
-              navigator.clipboard
-                .writeText(shareUrl)
-                .then(() => {
-                  toast({
-                    title: "Link copied",
-                    description: shareUrl,
-                  });
-                })
-                .catch(() => {
-                  toast({
-                    title: "Copy failed",
-                    description: "Could not copy the link.",
-                  });
-                });
-            }}
-            className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors sm:text-xs"
-          >
-            Copy link
-          </button>
-        ) : null}
-        {responsesUrl ? (
-          <a
-            href={responsesUrl}
-            className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors sm:text-xs"
-          >
-            Responses
-          </a>
-        ) : null}
-        <a
-          href="/dashboard"
-          className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors sm:text-xs"
-        >
-          Dashboard
-        </a>
+      <div className="flex flex-wrap items-center gap-3 justify-end">
         <button
-          aria-disabled="true"
-          className="group relative p-2 rounded-md hover:bg-accent text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+          className="p-2 rounded-md hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
           aria-label="Integrations"
         >
           <Zap className="h-4 w-4" />
-          <span className="pointer-events-none absolute -right-0.5 -top-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-            <Ban className="h-3 w-3 text-destructive" />
-          </span>
         </button>
         <button
-          aria-disabled="true"
-          className="group relative p-2 rounded-md hover:bg-accent text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+          className="p-2 rounded-md hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
           aria-label="History"
         >
           <Clock className="h-4 w-4" />
-          <span className="pointer-events-none absolute -right-0.5 -top-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-            <Ban className="h-3 w-3 text-destructive" />
-          </span>
         </button>
         <button
-          aria-disabled="true"
-          className="group relative p-2 rounded-md hover:bg-accent text-foreground hover:text-foreground transition-colors cursor-not-allowed"
+          className="p-2 rounded-md hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
           aria-label="Settings"
         >
           <Settings className="h-4 w-4" />
-          <span className="pointer-events-none absolute -right-0.5 -top-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-            <Ban className="h-3 w-3 text-destructive" />
-          </span>
+        </button>
+        <button className="px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors">
+          Customize
         </button>
         {hasToken ? (
           <button
@@ -139,37 +84,29 @@ export function Navbar({
               setHasToken(false);
               window.location.href = "/";
             }}
-            className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors sm:text-sm"
+            className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors"
           >
             Sign out
           </button>
         ) : (
-          <div className="flex items-center gap-2">
-            <Link
-              href="/signin"
-              className="px-3 py-1.5 text-[11px] font-medium text-foreground hover:text-foreground/80 transition-colors sm:text-sm"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/signup"
-              className="px-3 py-1.5 text-[11px] font-medium text-primary hover:text-primary/80 transition-colors sm:text-sm"
-            >
-              Sign up
-            </Link>
-          </div>
+          <Link
+            href="/signup"
+            className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+          >
+            Sign up
+          </Link>
         )}
         <button
           onClick={onTogglePreview}
           aria-pressed={isPreview}
-          className="px-3 py-1.5 text-[11px] font-medium text-foreground hover:bg-accent rounded-md transition-colors sm:text-sm"
+          className="px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
         >
           {isPreview ? "Edit" : "Preview"}
         </button>
         <button
           onClick={onPublish}
           disabled={isPublishing}
-          className="px-4 py-1.5 text-[11px] font-semibold text-primary-foreground bg-primary hover:bg-primary/90 rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed sm:text-sm"
+          className="px-4 py-1.5 text-xs font-semibold text-white bg-gray-800 hover:bg-gray-900 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isPublishing ? "Publishing..." : publishLabel}
         </button>

@@ -125,7 +125,7 @@ export function BuilderPageClient() {
 
   if (showTemplates) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Navbar
           formTitle="Choose a template"
           isPreview={false}
@@ -139,15 +139,15 @@ export function BuilderPageClient() {
         <main className="mx-auto flex max-w-6xl flex-col px-6 pt-12">
           <button
             onClick={() => setShowTemplates(false)}
-            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </button>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Choose a template
           </h1>
-          <p className="text-sm text-muted-foreground mb-8">
+          <p className="text-sm text-gray-600 mb-8">
             Start with a pre-built template and customize it for your needs.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -155,16 +155,16 @@ export function BuilderPageClient() {
               <button
                 key={template.id}
                 onClick={() => setSelectedTemplate(index)}
-                className="group rounded-lg border border-border bg-card p-6 hover:border-primary hover:bg-accent transition-all text-left"
+                className="group rounded-lg border border-gray-200 bg-white p-6 hover:border-gray-300 hover:shadow-md transition-all text-left"
               >
                 <div className="text-3xl mb-4">{template.icon}</div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {template.title}
                 </h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-sm text-gray-600 mb-4">
                   {template.description}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-500">
                   {template.blocks.length} questions
                 </p>
               </button>
@@ -178,7 +178,7 @@ export function BuilderPageClient() {
   const noop = () => undefined;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white text-black">
       <Navbar
         formTitle="Untitled"
         isPreview={false}
@@ -190,61 +190,74 @@ export function BuilderPageClient() {
         publishLabel="Publish"
       />
 
-      <main className="mx-auto flex max-w-3xl flex-col items-center px-6 pt-24 text-center">
-        <input
-          autoFocus
-          type="text"
-          value={draftTitle}
-          onChange={(event) => {
-            setDraftTitle(event.target.value);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              setStarted(true);
-            }
-          }}
-          placeholder="Form title"
-          className={`${displayFont.className} w-full text-center text-4xl font-semibold text-foreground/70 placeholder:text-muted-foreground/50 outline-none bg-transparent md:text-5xl`}
-          aria-label="Form title"
-        />
-        <div className="mt-10 flex flex-col items-center gap-3 text-sm text-muted-foreground">
-          <button
-            onClick={() => setStarted(true)}
-            className="flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 hover:bg-accent"
-          >
-            <CornerDownLeft className="h-4 w-4" />
-            Press Enter to start from scratch
-          </button>
-          <button
-            onClick={() => setShowTemplates(true)}
-            className="flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 hover:bg-accent"
-          >
-            <LayoutTemplate className="h-4 w-4" />
-            Use a template
-          </button>
+      <main className="mx-auto flex max-w-4xl flex-col items-start px-6 pt-20 pb-20">
+        <div className="w-full max-w-2xl">
+          <input
+            autoFocus
+            type="text"
+            value={draftTitle}
+            onChange={(event) => {
+              setDraftTitle(event.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                setStarted(true);
+              }
+            }}
+            placeholder="Form title"
+            className={`${displayFont.className} w-full text-left text-5xl md:text-6xl font-bold text-gray-400 placeholder:text-gray-300 outline-none bg-transparent`}
+            aria-label="Form title"
+          />
+
+          <div className="mt-12 flex flex-col items-start gap-4 text-sm text-gray-600">
+            <button
+              onClick={() => setStarted(true)}
+              className="flex items-center gap-2 px-4 py-2 hover:text-gray-800 transition-colors"
+            >
+              <CornerDownLeft className="h-4 w-4" />
+              Press Enter to start from scratch
+            </button>
+            <button
+              onClick={() => setShowTemplates(true)}
+              className="flex items-center gap-2 px-4 py-2 hover:text-gray-800 transition-colors"
+            >
+              <LayoutTemplate className="h-4 w-4" />
+              Use a template
+            </button>
+          </div>
+
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <p className="text-sm text-gray-700 leading-relaxed">
+              Tally is a form builder that{" "}
+              <span className="font-semibold text-pink-500">
+                works like a doc
+              </span>
+              .
+              <br />
+              Just type{" "}
+              <span className="font-semibold text-pink-600 bg-pink-100 px-1.5 py-0.5 rounded">
+                /
+              </span>{" "}
+              to insert form blocks and{" "}
+              <span className="font-semibold text-pink-600 bg-pink-100 px-1.5 py-0.5 rounded">
+                @
+              </span>{" "}
+              to mention question answers.
+            </p>
+          </div>
         </div>
-        <p className="mt-8 max-w-xl text-sm text-muted-foreground">
-          Tally is a form builder that{" "}
-          <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary">
-            works like a doc
-          </span>
-          . Just type{" "}
-          <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary">
-            /
-          </span>{" "}
-          to insert form blocks.
-        </p>
-        <div className="mt-10 grid w-full max-w-2xl grid-cols-1 gap-8 text-left md:grid-cols-2">
+
+        <div className="mt-16 w-full grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="text-sm font-bold text-gray-900 mb-6">
               Get started
             </div>
-            <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+            <div className="space-y-4">
               <button
                 type="button"
                 onClick={() => setStarted(true)}
-                className="group inline-flex items-center gap-2 text-foreground hover:text-blue-600 transition-colors"
+                className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors text-sm"
               >
                 <Sparkles className="h-4 w-4" />
                 Create your first form
@@ -252,105 +265,74 @@ export function BuilderPageClient() {
               <button
                 type="button"
                 onClick={() => setShowTemplates(true)}
-                className="group inline-flex items-center gap-2 text-foreground hover:text-blue-600 transition-colors"
+                className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors text-sm"
               >
                 <LayoutTemplate className="h-4 w-4" />
                 Get started with templates
               </button>
               <button
                 type="button"
-                aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
+                className="flex items-center gap-3 text-gray-500 hover:text-gray-700 transition-colors text-sm cursor-not-allowed"
               >
                 <Share2 className="h-4 w-4" />
                 Embed your form
-                <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                  <Ban className="h-3.5 w-3.5 text-destructive" />
-                </span>
               </button>
               <button
                 type="button"
-                aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
+                className="flex items-center gap-3 text-gray-500 hover:text-gray-700 transition-colors text-sm cursor-not-allowed"
               >
                 <BookOpen className="h-4 w-4" />
                 Help center
-                <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                  <Ban className="h-3.5 w-3.5 text-destructive" />
-                </span>
               </button>
               <button
                 type="button"
-                aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
+                className="flex items-center gap-3 text-gray-500 hover:text-gray-700 transition-colors text-sm cursor-not-allowed"
               >
                 <Wand2 className="h-4 w-4" />
                 Learn about Tally Pro
-                <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                  <Ban className="h-3.5 w-3.5 text-destructive" />
-                </span>
               </button>
             </div>
           </div>
+
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="text-sm font-bold text-gray-900 mb-6">
               How-to guides
             </div>
-            <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+            <div className="space-y-4">
               <button
                 type="button"
-                aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
+                className="flex items-center gap-3 text-gray-500 hover:text-gray-700 transition-colors text-sm cursor-not-allowed"
               >
                 <Sparkles className="h-4 w-4" />
                 Conditional logic
-                <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                  <Ban className="h-3.5 w-3.5 text-destructive" />
-                </span>
               </button>
               <button
                 type="button"
-                aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
+                className="flex items-center gap-3 text-gray-500 hover:text-gray-700 transition-colors text-sm cursor-not-allowed"
               >
                 <Calculator className="h-4 w-4" />
                 Calculator
-                <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                  <Ban className="h-3.5 w-3.5 text-destructive" />
-                </span>
               </button>
               <button
                 type="button"
-                aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
+                className="flex items-center gap-3 text-gray-500 hover:text-gray-700 transition-colors text-sm cursor-not-allowed"
               >
                 <EyeOff className="h-4 w-4" />
                 Hidden fields
-                <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                  <Ban className="h-3.5 w-3.5 text-destructive" />
-                </span>
               </button>
               <button
                 type="button"
-                aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
+                className="flex items-center gap-3 text-gray-500 hover:text-gray-700 transition-colors text-sm cursor-not-allowed"
               >
                 <AtSign className="h-4 w-4" />
                 Mentions
-                <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                  <Ban className="h-3.5 w-3.5 text-destructive" />
-                </span>
               </button>
               <button
                 type="button"
-                aria-disabled="true"
-                className="group inline-flex items-center gap-2 text-muted-foreground hover:text-muted-foreground transition-colors cursor-not-allowed"
+                className="flex items-center gap-3 text-gray-500 hover:text-gray-700 transition-colors text-sm cursor-not-allowed"
               >
                 <DollarSign className="h-4 w-4" />
                 Collect payments
-                <span className="opacity-0 transition-opacity group-hover:opacity-100">
-                  <Ban className="h-3.5 w-3.5 text-destructive" />
-                </span>
               </button>
             </div>
           </div>

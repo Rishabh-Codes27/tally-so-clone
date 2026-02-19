@@ -361,7 +361,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     </label>
                     <input
                       type="text"
-                      placeholder="Short answer"
+                      placeholder={block.placeholder?.trim() || undefined}
                       className="border-b border-border/60 py-2 text-sm text-foreground bg-transparent outline-none max-w-sm"
                     />
                   </div>
@@ -373,7 +373,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                       {getLabel(block)}
                     </label>
                     <textarea
-                      placeholder="Long answer"
+                      placeholder={block.placeholder?.trim() || undefined}
                       className="border border-border/60 rounded-md p-3 h-24 text-sm text-foreground bg-transparent outline-none"
                     />
                   </div>
@@ -386,7 +386,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     </label>
                     <input
                       type="email"
-                      placeholder="name@example.com"
+                      placeholder={block.placeholder?.trim() || undefined}
                       className="border-b border-border/60 py-2 text-sm text-foreground bg-transparent outline-none max-w-sm"
                     />
                   </div>
@@ -401,7 +401,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                       type="text"
                       inputMode="numeric"
                       pattern="[0-9]*"
-                      placeholder="0"
+                      placeholder={block.placeholder?.trim() || undefined}
                       value={inputValues[block.id] ?? ""}
                       onChange={(event) =>
                         handleNumberChange(block.id, event.target.value)
@@ -423,7 +423,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                     </label>
                     <input
                       type="url"
-                      placeholder="https://"
+                      placeholder={block.placeholder?.trim() || undefined}
                       className="border-b border-border/60 py-2 text-sm text-foreground bg-transparent outline-none max-w-sm"
                     />
                   </div>
@@ -446,6 +446,7 @@ export function FormPreview({ formTitle, blocks }: FormPreviewProps) {
                       className="phone-input"
                       numberInputProps={{
                         className: "bg-transparent outline-none text-sm",
+                        placeholder: block.placeholder?.trim() || undefined,
                       }}
                     />
                     {inputErrors[block.id] && (

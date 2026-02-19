@@ -31,6 +31,8 @@ interface FormBlockProps {
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragEnd: () => void;
+  onMoveToPrevious?: () => void;
+  onMoveToNext?: () => void;
   allBlocks?: FormBlock[];
 }
 
@@ -46,6 +48,8 @@ export function FormBlockComponent({
   onDragStart,
   onDragOver,
   onDragEnd,
+  onMoveToPrevious,
+  onMoveToNext,
   allBlocks = [],
 }: FormBlockProps) {
   const textInputRef = useRef<HTMLDivElement>(null);
@@ -110,21 +114,52 @@ export function FormBlockComponent({
         }
       }
 
+      const target = e.currentTarget as HTMLElement;
+      const selection = window.getSelection();
+      const cursorAtStart = selection && selection.focusOffset === 0;
+      const cursorAtEnd =
+        selection &&
+        selection.focusOffset ===
+          (selection.focusNode?.textContent?.length || 0);
+
       if (e.key === "Enter" && !e.shiftKey && !showSlashMenu) {
         e.preventDefault();
         onAddBelow();
       }
 
-      if (
-        e.key === "Backspace" &&
-        (block.content === "" || block.content === "/")
-      ) {
+      if (e.key === "Backspace" && cursorAtStart && block.content === "") {
         if (block.type !== "text") return;
         e.preventDefault();
         onDelete();
+      } else if (
+        e.key === "Backspace" &&
+        cursorAtStart &&
+        block.content !== ""
+      ) {
+        if (onMoveToPrevious) {
+          e.preventDefault();
+          onMoveToPrevious();
+        }
+      }
+
+      if (e.key === "ArrowUp" && cursorAtStart && onMoveToPrevious) {
+        e.preventDefault();
+        onMoveToPrevious();
+      }
+
+      if (e.key === "ArrowDown" && cursorAtEnd && onMoveToNext) {
+        e.preventDefault();
+        onMoveToNext();
       }
     },
-    [block, onAddBelow, onDelete, showSlashMenu],
+    [
+      block,
+      onAddBelow,
+      onDelete,
+      onMoveToPrevious,
+      onMoveToNext,
+      showSlashMenu,
+    ],
   );
 
   const handleSlashSelect = useCallback(
@@ -216,7 +251,7 @@ export function FormBlockComponent({
   }, [block.content, block.type]);
 
   const labelBaseClass =
-    "text-sm font-semibold text-foreground/90 outline-none mb-2 block w-full empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/45";
+    "text-base font-semibold text-gray-900 outline-none block empty:before:content-[attr(data-placeholder)] empty:before:text-gray-500";
 
   const showFieldShell = ![
     "text",
@@ -241,15 +276,26 @@ export function FormBlockComponent({
   ].includes(block.type);
 
   const renderRequiredToggle = () => (
-    <label className="mt-2 inline-flex items-center gap-2 text-xs text-muted-foreground">
-      <input
-        type="checkbox"
-        checked={block.required ?? false}
-        onChange={(e) => onUpdate({ ...block, required: e.target.checked })}
-        className="h-3.5 w-3.5"
+    <button
+      type="button"
+      onClick={() =>
+        onUpdate({ ...block, required: !(block.required ?? true) })
+      }
+      className={`inline-flex items-center transition-colors ${
+        (block.required ?? true) ? "text-gray-900" : "text-gray-400"
+      }`}
+      aria-pressed={block.required ?? true}
+      aria-label="Toggle required"
+      title="Required"
+    >
+      <Star
+        className={`h-3 w-3 ${
+          (block.required ?? true)
+            ? "text-gray-900 fill-gray-900"
+            : "text-gray-400"
+        }`}
       />
-      Required
-    </label>
+    </button>
   );
 
   const renderScaleSettings = () => (
@@ -611,9 +657,33 @@ export function FormBlockComponent({
         onUpdate({ ...block, content: text });
       }}
       onKeyDown={(e) => {
+        const selection = window.getSelection();
+        const cursorAtStart = selection && selection.focusOffset === 0;
+        const cursorAtEnd =
+          selection &&
+          selection.focusOffset ===
+            (selection.focusNode?.textContent?.length || 0);
+
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
           onAddBelow();
+        }
+
+        if (e.key === "Backspace" && cursorAtStart && block.content !== "") {
+          if (onMoveToPrevious) {
+            e.preventDefault();
+            onMoveToPrevious();
+          }
+        }
+
+        if (e.key === "ArrowUp" && cursorAtStart && onMoveToPrevious) {
+          e.preventDefault();
+          onMoveToPrevious();
+        }
+
+        if (e.key === "ArrowDown" && cursorAtEnd && onMoveToNext) {
+          e.preventDefault();
+          onMoveToNext();
         }
       }}
       onFocus={onFocus}
@@ -621,6 +691,41 @@ export function FormBlockComponent({
       aria-label={ariaLabel}
     />
   );
+
+  const hasPlaceholderValue = Boolean(block.placeholder?.trim());
+
+  const renderPlaceholderInput = (
+    fallback: string,
+    inputClassName: string,
+    emptyClassName: string,
+    isTextarea = false,
+  ) => {
+    const shouldShowInput = isActive || hasPlaceholderValue;
+    if (!shouldShowInput) {
+      return <div className={emptyClassName} />;
+    }
+
+    if (isTextarea) {
+      return (
+        <textarea
+          value={block.placeholder ?? ""}
+          onChange={(e) => onUpdate({ ...block, placeholder: e.target.value })}
+          placeholder={fallback}
+          className={inputClassName}
+        />
+      );
+    }
+
+    return (
+      <input
+        type="text"
+        value={block.placeholder ?? ""}
+        onChange={(e) => onUpdate({ ...block, placeholder: e.target.value })}
+        placeholder={fallback}
+        className={inputClassName}
+      />
+    );
+  };
 
   const renderBlockContent = () => {
     switch (block.type) {
@@ -687,77 +792,107 @@ export function FormBlockComponent({
       case "short-answer":
         return (
           <div className="w-full">
-            {renderEditableLabel("Question", "Short answer question")}
-            <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
-              Short answer text
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("Question", "Short answer question")}
+              {renderRequiredToggle()}
             </div>
-            {renderRequiredToggle()}
+            {renderPlaceholderInput(
+              "Add placeholder",
+              "w-full border border-gray-300 rounded-lg px-4 py-3 text-base text-gray-700 placeholder:text-gray-500 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-transparent",
+              "h-2",
+            )}
           </div>
         );
       case "long-answer":
         return (
           <div className="w-full">
-            {renderEditableLabel("Question", "Long answer question")}
-            <div className="border border-border/60 rounded-md p-3 h-20 text-sm text-muted-foreground/80 pointer-events-none">
-              Long answer text
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("Question", "Long answer question")}
+              {renderRequiredToggle()}
             </div>
-            {renderRequiredToggle()}
+            {renderPlaceholderInput(
+              "Add placeholder",
+              "w-full border border-gray-300 rounded-lg p-4 h-32 text-base text-gray-700 placeholder:text-gray-500 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-transparent resize-none",
+              "h-2",
+              true,
+            )}
           </div>
         );
       case "email":
         return (
           <div className="w-full">
-            {renderEditableLabel("Email address", "Email question")}
-            <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none flex items-center gap-2 max-w-sm">
-              <span>@</span> name@example.com
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("Email address", "Email question")}
+              {renderRequiredToggle()}
             </div>
-            {renderRequiredToggle()}
+            {renderPlaceholderInput(
+              "Add placeholder",
+              "w-full border border-gray-300 rounded-lg px-4 py-3 text-base text-gray-700 placeholder:text-gray-500 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-transparent",
+              "h-2",
+            )}
           </div>
         );
       case "number":
         return (
           <div className="w-full">
-            {renderEditableLabel("Number question", "Number question")}
-            <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
-              0
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("Number question", "Number question")}
+              {renderRequiredToggle()}
             </div>
-            {renderRequiredToggle()}
+            {renderPlaceholderInput(
+              "Add placeholder",
+              "w-full border border-gray-300 rounded-lg px-4 py-3 text-base text-gray-700 placeholder:text-gray-500 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-transparent",
+              "h-2",
+            )}
           </div>
         );
       case "url":
         return (
           <div className="w-full">
-            {renderEditableLabel("URL", "URL question")}
-            <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
-              https://
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("URL", "URL question")}
+              {renderRequiredToggle()}
             </div>
-            {renderRequiredToggle()}
+            {renderPlaceholderInput(
+              "Add placeholder",
+              "w-full border border-gray-300 rounded-lg px-4 py-3 text-base text-gray-700 placeholder:text-gray-500 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-transparent",
+              "h-2",
+            )}
           </div>
         );
       case "phone":
         return (
           <div className="w-full">
-            {renderEditableLabel("Phone number", "Phone question")}
-            <div className="border-b border-border/60 py-2 text-sm text-muted-foreground/80 pointer-events-none max-w-sm">
-              +1 (555) 000-0000
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("Phone number", "Phone question")}
+              {renderRequiredToggle()}
             </div>
-            {renderRequiredToggle()}
+            {renderPlaceholderInput(
+              "Add placeholder",
+              "w-full border border-gray-300 rounded-lg px-4 py-3 text-base text-gray-700 placeholder:text-gray-500 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-transparent",
+              "h-2",
+            )}
           </div>
         );
       case "date":
         return (
           <div className="w-full">
-            {renderEditableLabel("Date", "Date question")}
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("Date", "Date question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="border border-border/60 rounded-md px-3 py-2 text-sm text-muted-foreground/80 pointer-events-none inline-flex items-center gap-2">
               MM / DD / YYYY
             </div>
-            {renderRequiredToggle()}
           </div>
         );
       case "time":
         return (
           <div className="w-full">
-            {renderEditableLabel("Time", "Time question")}
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("Time", "Time question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="flex flex-wrap items-end gap-4 text-sm text-foreground">
               <label className="flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground">
@@ -807,17 +942,15 @@ export function FormBlockComponent({
                 className="border border-border/60 rounded-md px-3 py-2 text-sm text-foreground bg-transparent outline-none"
               />
             </div>
-            {renderRequiredToggle()}
           </div>
         );
       case "multiple-choice":
         return (
           <div className="w-full">
-            {renderEditableLabel(
-              "Question",
-              "Multiple choice question",
-              labelBaseClass.replace("mb-2", "mb-3"),
-            )}
+            <div className="flex items-center gap-1 mb-3">
+              {renderEditableLabel("Question", "Multiple choice question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="flex flex-col gap-2">
               {(block.options || []).map((option, i) => (
                 <div key={i} className="flex items-center gap-2 group/option">
@@ -847,17 +980,15 @@ export function FormBlockComponent({
                 Add option
               </button>
             </div>
-            {renderRequiredToggle()}
           </div>
         );
       case "checkboxes":
         return (
           <div className="w-full">
-            {renderEditableLabel(
-              "Question",
-              "Checkboxes question",
-              labelBaseClass.replace("mb-2", "mb-3"),
-            )}
+            <div className="flex items-center gap-1 mb-3">
+              {renderEditableLabel("Question", "Checkboxes question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="flex flex-col gap-2">
               {(block.options || []).map((option, i) => (
                 <div key={i} className="flex items-center gap-2 group/option">
@@ -887,17 +1018,15 @@ export function FormBlockComponent({
                 Add option
               </button>
             </div>
-            {renderRequiredToggle()}
           </div>
         );
       case "dropdown":
         return (
           <div className="w-full">
-            {renderEditableLabel(
-              "Question",
-              "Dropdown question",
-              labelBaseClass.replace("mb-2", "mb-3"),
-            )}
+            <div className="flex items-center gap-1 mb-3">
+              {renderEditableLabel("Question", "Dropdown question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="flex flex-col gap-2">
               {(block.options || []).map((option, i) => (
                 <div key={i} className="flex items-center gap-2 group/option">
@@ -929,17 +1058,15 @@ export function FormBlockComponent({
                 Add option
               </button>
             </div>
-            {renderRequiredToggle()}
           </div>
         );
       case "linear-scale":
         return (
           <div className="w-full">
-            {renderEditableLabel(
-              "Question",
-              "Linear scale question",
-              labelBaseClass.replace("mb-2", "mb-3"),
-            )}
+            <div className="flex items-center gap-1 mb-3">
+              {renderEditableLabel("Question", "Linear scale question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="flex items-center gap-2">
               {Array.from(
                 { length: (block.scaleMax ?? 5) - (block.scaleMin ?? 1) + 1 },
@@ -954,17 +1081,15 @@ export function FormBlockComponent({
               ))}
             </div>
             {renderScaleSettings()}
-            {renderRequiredToggle()}
           </div>
         );
       case "matrix":
         return (
           <div className="w-full">
-            {renderEditableLabel(
-              "Question",
-              "Matrix question",
-              labelBaseClass.replace("mb-2", "mb-3"),
-            )}
+            <div className="flex items-center gap-1 mb-3">
+              {renderEditableLabel("Question", "Matrix question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -1005,17 +1130,15 @@ export function FormBlockComponent({
                 </tbody>
               </table>
             </div>
-            {renderRequiredToggle()}
           </div>
         );
       case "rating":
         return (
           <div className="w-full">
-            {renderEditableLabel(
-              "Question",
-              "Rating question",
-              labelBaseClass.replace("mb-2", "mb-3"),
-            )}
+            <div className="flex items-center gap-1 mb-3">
+              {renderEditableLabel("Question", "Rating question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="flex items-center gap-1">
               {Array.from(
                 { length: block.ratingMax ?? 5 },
@@ -1025,25 +1148,29 @@ export function FormBlockComponent({
               ))}
             </div>
             {renderRatingSettings()}
-            {renderRequiredToggle()}
           </div>
         );
       case "payment":
         return (
           <div className="w-full">
-            {renderEditableLabel("Payment", "Payment question")}
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("Payment", "Payment question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="border border-border rounded-md p-4 flex items-center gap-3 text-muted-foreground pointer-events-none">
               <CreditCard className="h-5 w-5" />
               <span className="text-sm">Payment collection field</span>
             </div>
             {renderPaymentSettings()}
-            {renderRequiredToggle()}
           </div>
         );
       case "signature":
         return (
           <div className="w-full">
-            {renderEditableLabel("Signature", "Signature question")}
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("Signature", "Signature question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center text-muted-foreground pointer-events-none">
               <svg
                 width="32"
@@ -1059,17 +1186,15 @@ export function FormBlockComponent({
               </svg>
               <span className="text-sm mt-2">Draw signature here</span>
             </div>
-            {renderRequiredToggle()}
           </div>
         );
       case "ranking":
         return (
           <div className="w-full">
-            {renderEditableLabel(
-              "Ranking question",
-              "Ranking question",
-              labelBaseClass.replace("mb-2", "mb-3"),
-            )}
+            <div className="flex items-center gap-1 mb-3">
+              {renderEditableLabel("Ranking question", "Ranking question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="flex flex-col gap-2">
               {(block.options || []).map((option, i) => (
                 <div
@@ -1105,24 +1230,28 @@ export function FormBlockComponent({
                 Add item
               </button>
             </div>
-            {renderRequiredToggle()}
           </div>
         );
       case "wallet-connect":
         return (
           <div className="w-full">
-            {renderEditableLabel("Wallet Connect", "Wallet Connect question")}
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("Wallet Connect", "Wallet Connect question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="border border-border rounded-md p-4 flex items-center gap-3 text-muted-foreground pointer-events-none">
               <Wallet className="h-5 w-5" />
               <span className="text-sm">Connect your wallet</span>
             </div>
-            {renderRequiredToggle()}
           </div>
         );
       case "file-upload":
         return (
           <div className="w-full">
-            {renderEditableLabel("File upload", "File upload question")}
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel("File upload", "File upload question")}
+              {renderRequiredToggle()}
+            </div>
             <div className="border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center text-muted-foreground pointer-events-none">
               <svg
                 width="24"
@@ -1141,7 +1270,6 @@ export function FormBlockComponent({
               <span className="text-sm mt-2">Click or drag to upload</span>
             </div>
             {renderFileSettings()}
-            {renderRequiredToggle()}
           </div>
         );
       case "divider":
@@ -1298,11 +1426,16 @@ export function FormBlockComponent({
       case "respondent-country":
         return (
           <div className="w-full">
-            {renderEditableLabel("Respondent's country", "Respondent country")}
+            <div className="flex items-center gap-1 mb-2">
+              {renderEditableLabel(
+                "Respondent's country",
+                "Respondent country",
+              )}
+              {renderRequiredToggle()}
+            </div>
             <div className="border border-border/60 rounded-md px-3 py-2 text-sm text-muted-foreground">
               Auto-detected on submit
             </div>
-            {renderRequiredToggle()}
           </div>
         );
       default:
@@ -1387,11 +1520,7 @@ export function FormBlockComponent({
 
       {/* Block content */}
       <div
-        className={`flex-1 min-w-0 ${
-          showFieldShell
-            ? "rounded-md border border-border/40 px-4 py-3 bg-background"
-            : ""
-        }`}
+        className={`flex-1 min-w-0 ${showFieldShell ? "px-0 py-2" : ""}`}
         onClick={onFocus}
       >
         {renderBlockContent()}

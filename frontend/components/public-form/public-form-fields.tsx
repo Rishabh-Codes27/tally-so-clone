@@ -113,7 +113,7 @@ function SignaturePad({
         ref={canvasRef}
         width={520}
         height={140}
-        className="w-full rounded-md border border-border bg-background"
+        className="w-full rounded-md border-2 border-gray-300 bg-background"
         onPointerDown={startDrawing}
         onPointerMove={draw}
         onPointerUp={endDrawing}
@@ -411,7 +411,7 @@ export function PublicFormFields({
                 <input
                   type="text"
                   onChange={(e) => onChange(block.id, e.target.value)}
-                  className="border-b border-border py-2 text-sm bg-transparent outline-none"
+                  className="border-b border-gray-300 py-2 text-sm bg-transparent outline-none focus:border-gray-900 transition-colors"
                 />
                 <FieldError message={error} />
               </div>
@@ -422,7 +422,7 @@ export function PublicFormFields({
                 <label className="text-sm font-medium">{getLabel(block)}</label>
                 <textarea
                   onChange={(e) => onChange(block.id, e.target.value)}
-                  className="border border-border rounded-md p-3 h-24 text-sm bg-transparent outline-none"
+                  className="border border-gray-300 rounded-md p-3 h-24 text-sm bg-transparent outline-none focus:border-gray-900 transition-colors"
                 />
                 <FieldError message={error} />
               </div>
@@ -434,7 +434,7 @@ export function PublicFormFields({
                 <input
                   type="email"
                   onChange={(e) => onChange(block.id, e.target.value)}
-                  className="border-b border-border py-2 text-sm bg-transparent outline-none"
+                  className="border-b border-gray-300 py-2 text-sm bg-transparent outline-none focus:border-gray-900 transition-colors"
                 />
                 <FieldError message={error} />
               </div>
@@ -455,7 +455,7 @@ export function PublicFormFields({
                         : ""
                   }
                   onChange={(e) => handleNumberChange(block.id, e.target.value)}
-                  className="border-b border-border py-2 text-sm bg-transparent outline-none"
+                  className="border-b border-gray-300 py-2 text-sm bg-transparent outline-none focus:border-gray-900 transition-colors"
                 />
                 <FieldError message={error} />
               </div>
@@ -467,7 +467,7 @@ export function PublicFormFields({
                 <input
                   type="url"
                   onChange={(e) => onChange(block.id, e.target.value)}
-                  className="border-b border-border py-2 text-sm bg-transparent outline-none"
+                  className="border-b border-gray-300 py-2 text-sm bg-transparent outline-none focus:border-gray-900 transition-colors"
                 />
                 <FieldError message={error} />
               </div>
@@ -517,7 +517,7 @@ export function PublicFormFields({
                 <input
                   type="date"
                   onChange={(e) => onChange(block.id, e.target.value)}
-                  className="border border-border rounded-md px-3 py-2 text-sm bg-transparent outline-none"
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-transparent outline-none focus:border-gray-900 transition-colors"
                 />
                 <FieldError message={error} />
               </div>
@@ -532,7 +532,7 @@ export function PublicFormFields({
                   max={block.timeEnd}
                   step={block.timeStep ? block.timeStep * 60 : undefined}
                   onChange={(e) => onChange(block.id, e.target.value)}
-                  className="border border-border rounded-md px-3 py-2 text-sm bg-transparent outline-none"
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-transparent outline-none focus:border-gray-900 transition-colors"
                 />
                 <FieldError message={error} />
               </div>
@@ -598,7 +598,7 @@ export function PublicFormFields({
                 <label className="text-sm font-medium">{getLabel(block)}</label>
                 <select
                   onChange={(e) => onChange(block.id, e.target.value)}
-                  className="border border-border rounded-md px-3 py-2 text-sm bg-transparent outline-none"
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-transparent outline-none focus:border-gray-900 transition-colors"
                 >
                   <option value="">Select</option>
                   {(block.options || []).map((option, index) => (
@@ -660,7 +660,7 @@ export function PublicFormFields({
                     </thead>
                     <tbody>
                       {(block.rows || []).map((row, ri) => (
-                        <tr key={ri} className="border-t border-border">
+                        <tr key={ri} className="border-t border-gray-300">
                           <td className="p-2 text-foreground">{row}</td>
                           {(block.columns || []).map((col, ci) => {
                             const current =
@@ -785,7 +785,7 @@ export function PublicFormFields({
                           [block.id]: null,
                         }));
                       }}
-                      className={`flex items-center gap-3 rounded-md border border-border px-3 py-2 text-sm bg-transparent transition-colors ${
+                      className={`flex items-center gap-3 rounded-md border border-gray-300 px-3 py-2 text-sm bg-transparent transition-colors ${
                         activeDrag === option
                           ? "opacity-60"
                           : activeOver === option
@@ -809,7 +809,7 @@ export function PublicFormFields({
             return (
               <div key={block.id} className="flex flex-col gap-2">
                 <label className="text-sm font-medium">{getLabel(block)}</label>
-                <div className="rounded-md border border-border/60 px-3 py-2 text-sm text-muted-foreground">
+                <div className="rounded-md border border-gray-300 px-3 py-2 text-sm text-muted-foreground">
                   {block.paymentDescription ?? "Payment"} ·{" "}
                   {block.paymentAmount ?? 0} {block.paymentCurrency ?? "USD"}
                 </div>
@@ -910,7 +910,7 @@ export function PublicFormFields({
                   className={`relative flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed px-6 py-8 transition-colors ${
                     isDragOver
                       ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50 hover:bg-muted/30"
+                      : "border-gray-300 hover:border-primary/50 hover:bg-muted/30"
                   } ${fileErrors[block.id] ? "border-destructive" : ""}`}
                 >
                   <svg
@@ -985,13 +985,13 @@ export function PublicFormFields({
                   <img
                     src={block.content}
                     alt={getLabel(block)}
-                    className="rounded-md border border-border/40"
+                    className="rounded-md border border-gray-300"
                   />
                 ) : null}
               </div>
             );
           case "divider":
-            return <hr key={block.id} className="border-border" />;
+            return <hr key={block.id} className="border-gray-300" />;
           case "video":
             return (
               <div key={block.id} className="flex flex-col gap-2">
@@ -999,7 +999,7 @@ export function PublicFormFields({
                 {block.content ? (
                   <video
                     controls
-                    className="w-full rounded-md border border-border/40"
+                    className="w-full rounded-md border border-gray-300"
                   >
                     <source src={block.content} />
                   </video>
@@ -1024,7 +1024,7 @@ export function PublicFormFields({
                 {block.content ? (
                   <iframe
                     src={block.content}
-                    className="w-full min-h-[240px] rounded-md border border-border/40"
+                    className="w-full min-h-[240px] rounded-md border border-gray-300"
                     title={getLabel(block)}
                   />
                 ) : null}
@@ -1034,11 +1034,11 @@ export function PublicFormFields({
           case "new-page":
             return (
               <div key={block.id} className="flex items-center gap-3">
-                <hr className="border-border flex-1" />
+                <hr className="border-gray-300 flex-1" />
                 <span className="text-xs text-muted-foreground uppercase tracking-wider">
                   {block.type === "new-page" ? "New page" : "Page break"}
                 </span>
-                <hr className="border-border flex-1" />
+                <hr className="border-gray-300 flex-1" />
               </div>
             );
           case "respondent-country":
@@ -1059,7 +1059,7 @@ export function PublicFormFields({
                     }));
                     onChange(block.id, e.target.value);
                   }}
-                  className="border border-border rounded-md px-3 py-2 text-sm bg-transparent outline-none"
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-transparent outline-none focus:border-gray-900 transition-colors"
                 >
                   <option value="">Select country</option>
                   {countryOptions.map((option) => (

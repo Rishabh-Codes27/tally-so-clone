@@ -33,6 +33,9 @@ class FormCreate(BaseModel):
 
 class FormUpdate(BaseModel):
     title: Optional[str] = None
+    logo_url: Optional[str] = None
+    cover_url: Optional[str] = None
+    cover_height: Optional[int] = None
     blocks: Optional[list[FormBlock]] = None
 
 
@@ -41,6 +44,9 @@ class FormOut(BaseModel):
 
     id: int
     title: str
+    logo_url: Optional[str] = None
+    cover_url: Optional[str] = None
+    cover_height: int = 200
     blocks: list[FormBlock]
     share_id: str
     share_url: Optional[str] = None
