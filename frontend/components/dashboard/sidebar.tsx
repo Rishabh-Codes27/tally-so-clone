@@ -30,9 +30,10 @@ import { clearAuthToken, getCurrentUser } from "@/lib/api";
 
 interface SidebarProps {
   onSearchClick?: () => void;
+  onMembersClick?: () => void;
 }
 
-export function Sidebar({ onSearchClick }: SidebarProps) {
+export function Sidebar({ onSearchClick, onMembersClick }: SidebarProps) {
   const pathname = usePathname();
   const [username, setUsername] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -149,16 +150,16 @@ export function Sidebar({ onSearchClick }: SidebarProps) {
                 <Search className="h-4 w-4 shrink-0" />
                 {!isCollapsed && "Search"}
               </button>
-              <Link
-                href="/dashboard/members"
+              <button
+                onClick={onMembersClick}
                 className={`flex items-center ${
                   isCollapsed ? "justify-center" : "gap-3"
-                } px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md transition-colors`}
+                } px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md transition-colors w-full text-left`}
                 title={isCollapsed ? "Members" : undefined}
               >
                 <Users className="h-4 w-4 shrink-0" />
                 {!isCollapsed && "Members"}
-              </Link>
+              </button>
               <Link
                 href="/dashboard/domains"
                 className={`flex items-center ${
@@ -218,7 +219,7 @@ export function Sidebar({ onSearchClick }: SidebarProps) {
                   </div>
                   <div className="space-y-0.5">
                     <Link
-                      href="/dashboard"
+                      href="/dashboard/workspace"
                       className="flex items-center gap-3 px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md transition-colors"
                     >
                       <ChevronRight className="h-4 w-4" />

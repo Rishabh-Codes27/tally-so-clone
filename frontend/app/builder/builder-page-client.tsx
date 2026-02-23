@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { FormBuilder } from "@/components/form-builder/form-builder";
 import type { FormBlock } from "@/components/form-builder/types";
 import { Navbar } from "@/components/form-builder/navbar";
@@ -30,14 +30,12 @@ const displayFont = Space_Grotesk({
 
 export function BuilderPageClient() {
   const searchParams = useSearchParams();
-  const viewParam = searchParams.get("view");
   const formIdParam = searchParams.get("formId");
   const formId = useMemo(
     () => (formIdParam ? Number(formIdParam) : null),
     [formIdParam],
   );
   const [started, setStarted] = useState(false);
-  const [showTemplates, setShowTemplates] = useState(viewParam === "templates");
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
   const [editingForm, setEditingForm] = useState<{
@@ -64,7 +62,7 @@ export function BuilderPageClient() {
   }, [formId]);
 
   useEffect(() => {
-    if (started || showTemplates) return;
+    if (started || selectedTemplate !== null) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -73,7 +71,7 @@ export function BuilderPageClient() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [started, showTemplates]);
+  }, [started, selectedTemplate]);
 
   if (formId) {
     if (editLoading) {
@@ -123,59 +121,8 @@ export function BuilderPageClient() {
     return <FormBuilder initialTitle={draftTitle} autoFocusFirstBlock={true} />;
   }
 
-  if (showTemplates) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Navbar
-          formTitle="Choose a template"
-          isPreview={false}
-          onTogglePreview={() => undefined}
-          onPublish={() => undefined}
-          isPublishing={false}
-          shareUrl={null}
-          responsesUrl={null}
-          publishLabel="Publish"
-        />
-        <main className="mx-auto flex max-w-6xl flex-col px-6 pt-12">
-          <button
-            onClick={() => setShowTemplates(false)}
-            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Choose a template
-          </h1>
-          <p className="text-sm text-gray-600 mb-8">
-            Start with a pre-built template and customize it for your needs.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {TEMPLATES.map((template, index) => (
-              <button
-                key={template.id}
-                onClick={() => setSelectedTemplate(index)}
-                className="group rounded-lg border border-gray-200 bg-white p-6 hover:border-gray-300 hover:shadow-md transition-all text-left"
-              >
-                <div className="text-3xl mb-4">{template.icon}</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {template.title}
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  {template.description}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {template.blocks.length} questions
-                </p>
-              </button>
-            ))}
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   const noop = () => undefined;
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -219,7 +166,7 @@ export function BuilderPageClient() {
               Press Enter to start from scratch
             </button>
             <button
-              onClick={() => setShowTemplates(true)}
+              onClick={() => router.push("/templates")}
               className="flex items-center gap-2 px-4 py-2 hover:text-gray-800 transition-colors"
             >
               <LayoutTemplate className="h-4 w-4" />
@@ -264,7 +211,7 @@ export function BuilderPageClient() {
               </button>
               <button
                 type="button"
-                onClick={() => setShowTemplates(true)}
+                onClick={() => router.push("/templates")}
                 className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors text-sm"
               >
                 <LayoutTemplate className="h-4 w-4" />

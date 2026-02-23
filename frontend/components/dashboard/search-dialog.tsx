@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Search, Plus, ArrowRight, Folder } from "lucide-react";
+import { PricingDialog } from "./pricing-dialog";
 
 interface SearchDialogProps {
   open: boolean;
@@ -17,11 +18,17 @@ interface SearchDialogProps {
 
 export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
   const [query, setQuery] = useState("");
+  const [pricingOpen, setPricingOpen] = useState(false);
   const router = useRouter();
 
   const handleAction = (path: string) => {
     onOpenChange(false);
     router.push(path);
+  };
+
+  const handleNewWorkspace = () => {
+    onOpenChange(false);
+    setPricingOpen(true);
   };
 
   return (
@@ -59,7 +66,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 <span>New form</span>
               </button>
               <button
-                onClick={() => handleAction("/dashboard")}
+                onClick={handleNewWorkspace}
                 className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors text-left"
               >
                 <Folder className="h-4 w-4" />
@@ -81,7 +88,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 <span>Go to home</span>
               </button>
               <button
-                onClick={() => handleAction("/dashboard")}
+                onClick={() => handleAction("/templates")}
                 className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors text-left"
               >
                 <ArrowRight className="h-4 w-4" />
@@ -105,6 +112,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
           </div>
         </div>
       </DialogContent>
+      <PricingDialog open={pricingOpen} onOpenChange={setPricingOpen} />
     </Dialog>
   );
 }

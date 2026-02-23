@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Navbar } from "./navbar";
 import { FormBlockComponent } from "./form-block";
 import { FormPreview } from "./form-preview";
@@ -88,6 +89,7 @@ export function FormBuilder({
   initialShareUrl = null,
   initialResponsesUrl = null,
 }: FormBuilderProps) {
+  const router = useRouter();
   const [formTitle, setFormTitle] = useState(initialTitle);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoInitialized, setLogoInitialized] = useState(false);
@@ -319,6 +321,12 @@ export function FormBuilder({
       if (frontendShareUrl && navigator?.clipboard?.writeText) {
         navigator.clipboard.writeText(frontendShareUrl).catch(() => undefined);
       }
+
+      // Redirect to form detail page with Share tab after publishing
+      if (!formId) {
+        // Only redirect for new forms, not when updating existing forms
+        router.push(`/dashboard/forms/${response.id}`);
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to publish";
@@ -326,7 +334,7 @@ export function FormBuilder({
     } finally {
       setIsPublishing(false);
     }
-  }, [blocks, formId, formTitle]);
+  }, [blocks, formId, formTitle, router]);
 
   return (
     <div

@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { DashboardLayout, type FormData } from "@/components/dashboard";
+import {
+  DashboardLayout,
+  type FormData,
+  PricingDialog,
+} from "@/components/dashboard";
 import { listForms } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
@@ -10,6 +14,7 @@ import { formatDistanceToNow } from "date-fns";
 export default function DashboardPage() {
   const [forms, setForms] = useState<FormData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [pricingOpen, setPricingOpen] = useState(false);
 
   useEffect(() => {
     listForms()
@@ -55,7 +60,10 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-foreground">Home</h1>
           <div className="flex items-center gap-3">
-            <button className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-md text-sm font-medium hover:bg-accent transition-colors">
+            <button
+              onClick={() => setPricingOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-md text-sm font-medium hover:bg-accent transition-colors"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -113,7 +121,7 @@ export default function DashboardPage() {
                 className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
               >
                 <Link
-                  href={`/builder?formId=${form.id}`}
+                  href={`/dashboard/forms/${form.id}`}
                   className="flex-1 min-w-0"
                 >
                   <div className="flex flex-col gap-1">
@@ -126,7 +134,12 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <p className="text-xs text-gray-500">
-                      Edited {getTimeAgo(form.created_at)} ago
+                      {form.response_count === 0
+                        ? "No completed submissions yet"
+                        : `${form.response_count} submission${
+                            form.response_count === 1 ? "" : "s"
+                          }`}{" "}
+                      · Edited {getTimeAgo(form.created_at)} ago
                     </p>
                   </div>
                 </Link>
@@ -147,6 +160,26 @@ export default function DashboardPage() {
                         strokeLinejoin="round"
                         strokeWidth={2}
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </Link>
+                  <Link
+                    href={`/s/${form.share_id}`}
+                    target="_blank"
+                    className="inline-flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors"
+                    title="View form"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                       />
                     </svg>
                   </Link>
@@ -186,6 +219,7 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+      <PricingDialog open={pricingOpen} onOpenChange={setPricingOpen} />
     </DashboardLayout>
   );
 }

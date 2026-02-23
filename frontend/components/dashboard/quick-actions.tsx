@@ -20,7 +20,7 @@ const quickActions: QuickAction[] = [
     iconColor: "text-primary",
   },
   {
-    href: "/builder?view=templates",
+    href: "/templates",
     icon: LayoutTemplate,
     title: "Use a template",
     description: "Start with a template",

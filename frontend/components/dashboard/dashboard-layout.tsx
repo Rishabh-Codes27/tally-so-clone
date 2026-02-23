@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { SearchDialog } from "@/components/dashboard/search-dialog";
+import { PricingDialog } from "@/components/dashboard/pricing-dialog";
 import { Search, Settings, Sparkles } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -11,10 +12,14 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [searchOpen, setSearchOpen] = useState(false);
+  const [pricingOpen, setPricingOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-background md:flex-row">
-      <Sidebar onSearchClick={() => setSearchOpen(true)} />
+      <Sidebar
+        onSearchClick={() => setSearchOpen(true)}
+        onMembersClick={() => setPricingOpen(true)}
+      />
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Navbar */}
         <nav className="h-14 border-b border-border bg-background flex items-center justify-end px-6 gap-2">
@@ -37,6 +42,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <main className="flex-1 overflow-auto">{children}</main>
       </div>
       <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+      <PricingDialog open={pricingOpen} onOpenChange={setPricingOpen} />
     </div>
   );
 }
